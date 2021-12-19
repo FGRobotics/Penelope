@@ -68,7 +68,18 @@ public class ConceptCV extends OpenCvPipeline {
     }
 
     public static int findTSE(Mat input,int x1,int x2,int x3, int x4, int x5, int x6, int y1, int y2){
+        
+        
+        Rect leftRect = new Rect(x1,y1,x2-x1,y1-y2);
+        Imgproc.rectangle(input, leftRect, new Scalar(0, 255, 0), 2);
 
+        Rect middleRect = new Rect(x3,y1,x4-x3,y1-y2);
+        Imgproc.rectangle(input, middleRect, new Scalar(0, 255, 0), 2);
+
+        Rect rightRect = new Rect(x5,y1,x6-x5,y1-y2);
+        Imgproc.rectangle(input, rightRect, new Scalar(0, 255, 0), 2);
+        
+        //drew rectangle for all the color searching areas
 
         int avg_greenLeft = 0;
         int avg_greenMiddle = 0;
