@@ -46,11 +46,11 @@ public class redBarrier extends LinearOpMode {
                     //.back(20)
                     .lineToSplineHeading(new Pose2d(-10, 1, Math.toRadians(310)))
 
-                    .addDisplacementMarker(()->{
+                    .addTemporalMarker(6,()->{
 
 
                         LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        LSlides.setTargetPosition(3700);
+                        LSlides.setTargetPosition(3800);
                         LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         LSlides.setPower(0.8);
                         SlidesAngle.setPower(0.5);
@@ -69,7 +69,7 @@ public class redBarrier extends LinearOpMode {
                         Bin.setPosition(1.0);
                         sleep(2000);
                         Bin.setPosition(0.5);
-                        LSlides.setTargetPosition(0);
+                        LSlides.setTargetPosition(800);
                         //LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         LSlides.setPower(-0.7);
 
@@ -89,10 +89,10 @@ public class redBarrier extends LinearOpMode {
 
                     .build();
             Trajectory park = drive.trajectoryBuilder(fondue.end())
-                    .lineToSplineHeading(new Pose2d(70, -36, Math.toRadians(0)))
+                    .lineToSplineHeading(new Pose2d(60, -26, Math.toRadians(0)))
                     .build();
             Trajectory tPark = drive.trajectoryBuilder(park.end())
-                    .lineToConstantHeading(new Vector2d(150, -36))
+                    .lineToConstantHeading(new Vector2d(160, -36))
                     .build();
             drive.followTrajectory(fondue);
             drive.followTrajectory(park);
