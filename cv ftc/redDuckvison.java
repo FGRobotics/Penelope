@@ -37,6 +37,8 @@ public class redDuck extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
         
+        
+        //copy from here
         OpenCvWebcam webcam;
         int test = 1;
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -76,7 +78,7 @@ public class redDuck extends LinearOpMode {
 
             finalWebcam.stopStreaming(); 
 
-        
+            //end copy here
         
         
         
