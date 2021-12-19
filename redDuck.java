@@ -38,7 +38,7 @@ public class redDuck extends LinearOpMode {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         Bin.setPosition(0.5);
-        Pose2d duckPose = new Pose2d(-85, -80, Math.toRadians(180));
+        Pose2d duckPose = new Pose2d(-85, -80, Math.toRadians(175));
         Pose2d myPose = new Pose2d(-30, -62, Math.toRadians(270));//intake facing back wall
         drive.setPoseEstimate(myPose);
 
@@ -54,13 +54,15 @@ public class redDuck extends LinearOpMode {
                 //.back(20)
                 .lineToSplineHeading(new Pose2d(-1, -14, Math.toRadians(240)))
 
-                .addDisplacementMarker(()->{
+                /*.addTemporalMarker(6, ()->{
 
 
                     LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    LSlides.setTargetPosition(3500);
+                    LSlides.setPower(0.8);
+                    LSlides.setTargetPosition(3800);
+
                     LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    LSlides.setPower(-0.8);
+
                     SlidesAngle.setPower(0.5);
 
 
@@ -68,18 +70,19 @@ public class redDuck extends LinearOpMode {
                         telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
                         telemetry.update();
 
-                        //idle
+                        idle();
 
                     }
+
 
 
                     LSlides.setPower(0.0);
                     Bin.setPosition(1.0);
                     sleep(2000);
                     Bin.setPosition(0.5);
-                    LSlides.setTargetPosition(0);
+                    LSlides.setTargetPosition(950);
                     //LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    LSlides.setPower(0.7);
+                    LSlides.setPower(-0.7);
 
                     while(LSlides.isBusy()){
                         telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
@@ -92,7 +95,7 @@ public class redDuck extends LinearOpMode {
 
 
 
-                })
+                })*/
 
 
                 .build();
@@ -118,9 +121,51 @@ public class redDuck extends LinearOpMode {
 
 
 
+        /**
+         * match 1:
+         * match 2:
+         * match 3:
+         * match 4:
+         * match 5:
+         * match 6:
+         */
 
         drive.followTrajectory(fondue);
+        LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LSlides.setPower(0.8);
+        LSlides.setTargetPosition(3800);
 
+        LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        SlidesAngle.setPower(0.5);
+
+
+        while(LSlides.isBusy()){
+            telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
+            telemetry.update();
+
+            idle();
+
+        }
+
+
+
+        LSlides.setPower(0.0);
+        Bin.setPosition(1.0);
+        sleep(2000);
+        Bin.setPosition(0.5);
+        LSlides.setTargetPosition(950);
+        //LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        LSlides.setPower(-0.7);
+
+        while(LSlides.isBusy()){
+            telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
+            telemetry.update();
+            //idle
+            SlidesAngle.setPower(-0.1);
+        }
+        LSlides.setPower(0);
+        SlidesAngle.setPower(0.0);
 
         LSlides.setPower(0);
 
@@ -128,8 +173,9 @@ public class redDuck extends LinearOpMode {
 
 
         //drive.followTrajectory(back);
+
         drive.followTrajectory(duck);
-        drive.turn(Math.toRadians(-60));
+        drive.turn(Math.toRadians(-55));
         Wheel.setPower(-0.2);
         sleep(3000);
         Wheel.setPower(0);
