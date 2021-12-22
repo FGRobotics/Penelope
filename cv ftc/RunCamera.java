@@ -31,7 +31,7 @@ public class RunCamera extends LinearOpMode {
         finalWebcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                finalWebcam.startStreaming(1920 ,1080, OpenCvCameraRotation.UPRIGHT);
+                finalWebcam.startStreaming(1920 ,1080, OpenCvCameraRotation.UPSIDE_DOWN);
                 telemetry.addData("Initialization passed ", test);
                 telemetry.update();
             }
@@ -44,6 +44,13 @@ public class RunCamera extends LinearOpMode {
             }
             //stop copying here
         });
+        int location = 0;
+            
+            ConceptCV.configureBoundaries(236,312,778,954,1416,1571,831,881);
+
+            location = ConceptCV.findTSE();
+            //location of 0 = left, 1 = middle, 2 is right
+
 
         waitForStart();
 
@@ -51,12 +58,7 @@ public class RunCamera extends LinearOpMode {
         while(opModeIsActive()) {
 
             //again start copy here
-            int location = 0;
-
-            location = ConceptCV.findTSE(ConceptCV.returnInput(),236,312,778,954,1416,1571,831,881);
-            //location of 0 = left, 1 = middle, 2 is right
-
-
+            
 
             telemetry.addData("Location: ",location);
             telemetry.update();
