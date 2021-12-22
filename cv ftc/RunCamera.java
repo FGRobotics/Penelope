@@ -46,7 +46,7 @@ public class RunCamera extends LinearOpMode {
         });
         int location = 0;
             
-            ConceptCV.configureBoundaries(236,312,778,954,1416,1571,831,881);
+            ConceptCV.configureRects(236,312,778,954,1416,1571,831,881);
 
             location = ConceptCV.findTSE();
             //location of 0 = left, 1 = middle, 2 is right
