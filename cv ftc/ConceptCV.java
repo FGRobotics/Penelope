@@ -62,6 +62,21 @@ public class ConceptCV extends OpenCvPipeline {
         y1 = p1;
         y2 = p2;
     }
+    public static void translateRects(int leftX, int middleX, int rightX, int y){
+	    x1 += leftX;
+	    x2 += leftX;
+	    
+	    x3 += middleX;
+	    x4 += middleX;
+	    
+	    x5 += rightX;
+	    x6 += rightX;
+	    
+	    y1 += y;
+	    y2 += y;
+	    
+	    
+    }
     @Override
     public Mat processFrame(Mat input){
 
