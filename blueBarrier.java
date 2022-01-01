@@ -16,12 +16,12 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 @Autonomous(group = "drive")
 public class blueBarrier extends LinearOpMode {
-    private DcMotorEx SlidesAngle, LSlides, Intake, Wheel;
+    private DcMotorEx LSlides, Intake, Wheel;
     private Servo Bin;
     private ElapsedTime runtime = new ElapsedTime(0);
 
     public void runOpMode() throws InterruptedException {
-        SlidesAngle = hardwareMap.get(DcMotorEx.class, "SlidesAngle");
+
         LSlides = hardwareMap.get(DcMotorEx.class, "LSlides");
         Bin = hardwareMap.get(Servo.class, "Bin");
         Wheel = hardwareMap.get(DcMotorEx.class, "Wheel");

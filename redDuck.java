@@ -22,19 +22,19 @@ import java.util.Vector;
  */
 @Autonomous(group = "drive")
 public class redDuck extends LinearOpMode {
-    private DcMotorEx SlidesAngle, LSlides, Intake, Wheel;
+    private DcMotorEx LSlides, Intake, Wheel;
     private Servo Bin;
     private ElapsedTime runtime = new ElapsedTime(0);
 
     public void runOpMode() throws InterruptedException {
-        SlidesAngle = hardwareMap.get(DcMotorEx.class, "SlidesAngle");
+
         LSlides = hardwareMap.get(DcMotorEx.class, "LSlides");
         Bin = hardwareMap.get(Servo.class, "Bin");
         Wheel = hardwareMap.get(DcMotorEx.class, "Wheel");
         Intake = hardwareMap.get(DcMotorEx.class, "Intake");
         Wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-         double LSlidesPower;
+        double LSlidesPower;
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         Bin.setPosition(0.5);
@@ -63,7 +63,7 @@ public class redDuck extends LinearOpMode {
 
                     LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-                    SlidesAngle.setPower(0.5);
+
 
 
                     while(LSlides.isBusy()){
@@ -88,10 +88,10 @@ public class redDuck extends LinearOpMode {
                         telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
                         telemetry.update();
                         //idle
-                        SlidesAngle.setPower(-0.1);
+
                     }
                     LSlides.setPower(0);
-                    SlidesAngle.setPower(0.0);
+
 
 
 
@@ -101,7 +101,7 @@ public class redDuck extends LinearOpMode {
                 .build();
         //avoid barcode
         Trajectory back = drive.trajectoryBuilder(fondue.end())
-               .lineTo(new Vector2d(-18, -40))
+                .lineTo(new Vector2d(-18, -40))
                 .build();
 
 
@@ -137,7 +137,7 @@ public class redDuck extends LinearOpMode {
 
         LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        SlidesAngle.setPower(0.5);
+
 
 
         while(LSlides.isBusy()){
@@ -162,10 +162,10 @@ public class redDuck extends LinearOpMode {
             telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
             telemetry.update();
             //idle
-            SlidesAngle.setPower(-0.1);
+
         }
         LSlides.setPower(0);
-        SlidesAngle.setPower(0.0);
+
 
         LSlides.setPower(0);
 
