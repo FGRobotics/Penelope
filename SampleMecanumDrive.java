@@ -215,7 +215,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
         for (DcMotorEx motor : motors) {
-            motor.setZeroPowerBehavior(zeroPowerBehavior);
+            motor.setZeroPowerBehavior(zeroPowerBehavior.BRAKE);
         }
     }
 
@@ -272,7 +272,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     @Override
     public void setMotorPowers(double v, double v1, double v2, double v3) {
         leftFront.setPower(v);
-        leftRear.setPower(v1*-1);
+        leftRear.setPower(v1);
         rightRear.setPower(v2);
         rightFront.setPower(v3);
     }
