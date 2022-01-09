@@ -38,7 +38,7 @@ import java.io.File;
 import java.lang.Math;
 import java.io.IOException;
 
-
+@Disabled
 public class ConceptCV extends OpenCvPipeline {
 
     public double rectX;
@@ -63,6 +63,21 @@ public class ConceptCV extends OpenCvPipeline {
         y1 = p1;
         y2 = p2;
     }
+    public static void translateRects(int leftX, int middleX, int rightX, int y){
+        x1 += leftX;
+        x2 += leftX;
+
+        x3 += middleX;
+        x4 += middleX;
+
+        x5 += rightX;
+        x6 += rightX;
+
+        y1 += y;
+        y2 += y;
+
+
+    }
     @Override
     public Mat processFrame(Mat input){
 
@@ -80,9 +95,11 @@ public class ConceptCV extends OpenCvPipeline {
         for(int x = x1; x<=x2; x++) {
             for(int y = y1; y<=y2; y++) {
                 double[] pixel1 = stream.get(y,x);
-
+                double r1 = pixel1[2]/255.0;
+                double b1 = pixel1[0]/255.0;
                 double g1 = pixel1[1]/255.0;
-                if(g1>0.65) {
+
+                if(g1>0.3 && b1<0.5 /*&& r1 <0.5*/) {
                     avg_greenLeft += 1;
                 }
             }
@@ -91,9 +108,11 @@ public class ConceptCV extends OpenCvPipeline {
         for(int x = x3; x<=x4; x++) {
             for(int y = y1; y<=y2; y++) {
                 double[] pixel1 = stream.get(y,x);
-
+                double r1 = pixel1[2]/255.0;
+                double b1 = pixel1[0]/255.0;
                 double g1 = pixel1[1]/255.0;
-                if(g1>0.65) {
+
+                if(g1>0.3 && b1<0.5 /*&& r1 <0.5*/) {
                     avg_greenMiddle += 1;
                 }
             }
@@ -102,9 +121,11 @@ public class ConceptCV extends OpenCvPipeline {
         for(int x = x5; x<=x6; x++) {
             for(int y = y1; y<=y2; y++) {
                 double[] pixel1 = stream.get(y,x);
-
+                double r1 = pixel1[2]/255.0;
+                double b1 = pixel1[0]/255.0;
                 double g1 = pixel1[1]/255.0;
-                if(g1>0.65) {
+
+                if(g1>0.3 && b1<0.5 /*&& r1 <0.5*/) {
                     avg_greenRight += 1;
                 }
             }
@@ -128,21 +149,21 @@ public class ConceptCV extends OpenCvPipeline {
         if(maxAt == 0){
             Imgproc.rectangle(input,new Point(x1 , y1),new Point(x2,y2),new Scalar(0,255,0),3);
 
-            Imgproc.rectangle(input,new Point(x3 , y1),new Point(x4,y2),new Scalar(255,0,0),3);
+            Imgproc.rectangle(input,new Point(x3 , y1),new Point(x4,y2),new Scalar(0,0,255),3);
 
-            Imgproc.rectangle(input,new Point(x5 , y1),new Point(x6,y2),new Scalar(255,0,0),3);
+            Imgproc.rectangle(input,new Point(x5 , y1),new Point(x6,y2),new Scalar(0,0,255),3);
         }
         if(maxAt == 1){
-            Imgproc.rectangle(input,new Point(x1 , y1),new Point(x2,y2),new Scalar(255,0,0),3);
+            Imgproc.rectangle(input,new Point(x1 , y1),new Point(x2,y2),new Scalar(0,0,255),3);
 
             Imgproc.rectangle(input,new Point(x3 , y1),new Point(x4,y2),new Scalar(0,255,0),3);
 
-            Imgproc.rectangle(input,new Point(x5 , y1),new Point(x6,y2),new Scalar(255,0,0),3);
+            Imgproc.rectangle(input,new Point(x5 , y1),new Point(x6,y2),new Scalar(0,0,255),3);
         }
         if(maxAt == 2){
-            Imgproc.rectangle(input,new Point(x1 , y1),new Point(x2,y2),new Scalar(255,0,0),3);
+            Imgproc.rectangle(input,new Point(x1 , y1),new Point(x2,y2),new Scalar(0,0,255),3);
 
-            Imgproc.rectangle(input,new Point(x3 , y1),new Point(x4,y2),new Scalar(255,0,0),3);
+            Imgproc.rectangle(input,new Point(x3 , y1),new Point(x4,y2),new Scalar(0,0,255),3);
 
             Imgproc.rectangle(input,new Point(x5 , y1),new Point(x6,y2),new Scalar(0,255,0),3);
         }
@@ -167,4 +188,3 @@ public class ConceptCV extends OpenCvPipeline {
 
     }
 }
-

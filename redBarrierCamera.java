@@ -28,7 +28,7 @@ public class redBarrierCamera extends LinearOpMode {
     private List<DcMotorEx> motors;
 
     @Override
-    public void runOpMode() throws InterruptedException{
+    public void runOpMode() throws InterruptedException {
 
         Wheel = hardwareMap.get(DcMotorEx.class, "Wheel");
         LSlides = hardwareMap.get(DcMotorEx.class, "LSlides");
@@ -45,14 +45,12 @@ public class redBarrierCamera extends LinearOpMode {
 
         Trajectory fondue = drive.trajectoryBuilder(myPose)
                 //.back(20)
-                .lineToSplineHeading(new Pose2d(3, -45, Math.toRadians(269)))
+                .lineToSplineHeading(new Pose2d(3, -46, Math.toRadians(269)))
                 .build();
         Trajectory park = drive.trajectoryBuilder(myPose)
                 //.back(20)
-                .lineToSplineHeading(new Pose2d(-26, -51, Math.toRadians(230)))
-                .build();
-
-        Trajectory duck = drive.trajectoryBuilder(fondue.end())
+                //.lineToSplineHeading(new Pose2d(-26, -51, Math.toRadians(230)))
+                .lineToSplineHeading(new Pose2d(10, -46, Math.toRadians(0)))
                 .build();
 
 
@@ -103,15 +101,13 @@ public class redBarrierCamera extends LinearOpMode {
         telemetry.update();
 
 
-
-
         sleep(2000);
 
 
         if (isStopRequested()) return;
 
 
-        finalWebcam.closeCameraDeviceAsync(new OpenCvCamera.AsyncCameraCloseListener(){
+        finalWebcam.closeCameraDeviceAsync(new OpenCvCamera.AsyncCameraCloseListener() {
 
 
             @Override
@@ -125,7 +121,7 @@ public class redBarrierCamera extends LinearOpMode {
         // Variable setup
         int cPos = LSlides.getCurrentPosition();
         double LSlidesPower = 0.0;
-        double LSlidesRotation = (LSlides.getCurrentPosition()/1680.0);
+        double LSlidesRotation = (LSlides.getCurrentPosition() / 1680.0);
         double upRange = 0.5;
         double downRange = 1.0;
         //Telemetry
@@ -136,28 +132,27 @@ public class redBarrierCamera extends LinearOpMode {
         telemetry.update();
 
 
-        if (location == 0){
+        if (location == 0) {
             drive.followTrajectory(fondue);
 
             LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             LSlides.setPower(-0.8);
-            LSlides.setTargetPosition(1400);
+            LSlides.setTargetPosition(2000); //last number was 1600
             LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            while(LSlides.isBusy()){
+            while (LSlides.isBusy()) {
                 telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
                 telemetry.update();
 
                 idle();
 
             }
-        }
-        else if (location == 1){
+        } else if (location == 1) {
             drive.followTrajectory(fondue);
             LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             LSlides.setPower(-0.8);
-            LSlides.setTargetPosition(2600);
+            LSlides.setTargetPosition(2800);
             LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            while(LSlides.isBusy()){
+            while (LSlides.isBusy()) {
                 telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
                 telemetry.update();
 
@@ -165,31 +160,38 @@ public class redBarrierCamera extends LinearOpMode {
 
             }
 
-        }
-        else if (location == 2){
+        } else if (location == 2) {
             drive.followTrajectory(fondue);
             LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             LSlides.setPower(-0.8);
             LSlides.setTargetPosition(4100);
             LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            while(LSlides.isBusy()){
+            while (LSlides.isBusy()) {
                 telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
                 telemetry.update();
 
                 idle();
 
             }
-        }
-        else{
+        } else {
             Wheel.setPower(0.5);
             sleep(1000);
             Wheel.setPower(0);
         }
+        if(!LSlides.isBusy()){
         sleep(1000);
         Bin.setPosition(1.0);
         sleep(1000);
         Bin.setPosition(0.5);
         sleep(1000);
+        }
+        /*
+            //park trajectory
+        //drive.followTrajectory(park);
+        drive.turn(Math.toRadians(91));
+
+         */
+
         /*LSlides.setPower(0.8);
         LSlides.setTargetPosition(10);
         LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -254,6 +256,7 @@ public class redBarrierCamera extends LinearOpMode {
             else{
                 Bin.setPosition(0.5);
             }*/
-        //drive.turn(Math.toRadians(91));
+
+
     }
 }

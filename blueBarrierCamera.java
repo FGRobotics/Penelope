@@ -45,9 +45,10 @@ public class blueBarrierCamera extends LinearOpMode {
         drive.setPoseEstimate(myPose);
         Pose2d parkT = new Pose2d(10, 62, Math.toRadians(0));
 
+
         Trajectory fondue = drive.trajectoryBuilder(myPose)
                 //.back(20)
-                .lineToSplineHeading(new Pose2d(6, 50, Math.toRadians(40)))
+                .lineToSplineHeading(new Pose2d(3, 57, Math.toRadians(89)))
                 .build();
         Trajectory park = drive.trajectoryBuilder(parkT)
                 //.back(20)
@@ -137,7 +138,7 @@ public class blueBarrierCamera extends LinearOpMode {
                 drive.followTrajectory(fondue);
                 LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 LSlides.setPower(-0.8);
-                LSlides.setTargetPosition(1150);
+                LSlides.setTargetPosition(1500);
                 LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 while (LSlides.isBusy()) {
                     telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
@@ -150,7 +151,7 @@ public class blueBarrierCamera extends LinearOpMode {
                 drive.followTrajectory(fondue);
                 LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 LSlides.setPower(-0.8);
-                LSlides.setTargetPosition(2650);
+                LSlides.setTargetPosition(2550); //last number was 2600 //number that works: 2550
                 LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 while (LSlides.isBusy()) {
                     telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
@@ -161,9 +162,10 @@ public class blueBarrierCamera extends LinearOpMode {
                 }
 
             } else if (location == 2) {
+                drive.followTrajectory(fondue);
                 LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 LSlides.setPower(-0.8);
-                LSlides.setTargetPosition(3000);
+                LSlides.setTargetPosition(4100);
                 LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 while (LSlides.isBusy()) {
                     telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
@@ -177,22 +179,28 @@ public class blueBarrierCamera extends LinearOpMode {
                 sleep(1000);
                 Wheel.setPower(0);
             }
+        if(!LSlides.isBusy()){
             sleep(1000);
             Bin.setPosition(1.0);
             sleep(1000);
             Bin.setPosition(0.5);
             sleep(1000);
-            LSlides.setPower(0.8);
+        }
+
+            /*LSlides.setPower(0.8);
+            LSlides.setTargetPositionTolerance(100);
             LSlides.setTargetPosition(0);
             LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            while (LSlides.isBusy()) {
+        while (LSlides.isBusy()) {
                 telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
                 telemetry.update();
 
                 idle();
-            }
+            }*/
 
-            //drive.followTrajectory(fondue);
+
+
+        //drive.followTrajectory(fondue);
             //drive.turn(Math.toRadians(0));
         // drive.followTrajectory(park);
 
