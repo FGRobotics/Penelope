@@ -1,0 +1,29 @@
+Function:
+	public double getRPM(){
+        double RPM;
+        RPM = (Wheel.getCurrentPosition()/1760)/(getRuntime()/60);
+        return RPM;
+    	}
+
+Arguements:
+	Wheel.setPower(0.1);
+        double cPower;
+        double addPower = 0.1;
+        double cTime = getRuntime();
+        while(getRuntime() < cTime+10) {
+            if (getRPM() < 69.00) {
+                while (getRPM() < 69.00) {
+                    cPower = Wheel.getPower();
+                    Wheel.setPower(cPower + addPower);
+                }
+
+            } else if (getRPM() > 69.00) {
+                while (getRPM() > 69.00) {
+                    cPower = Wheel.getPower();
+                    Wheel.setPower(cPower - addPower);
+                }
+            } else {
+                cPower = Wheel.getPower();
+                Wheel.setPower(cPower);
+            }
+        }
