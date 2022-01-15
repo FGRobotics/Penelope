@@ -56,7 +56,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(4.5, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(15, 0, 0);
 
-    public static double LATERAL_MULTIPLIER = 2.5;
+    public static double LATERAL_MULTIPLIER = 8.75;
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -271,7 +271,7 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     @Override
     public void setMotorPowers(double v, double v1, double v2, double v3) {
-        leftFront.setPower(v);
+        leftFront.setPower(v*-1);
         leftRear.setPower(v1);
         rightRear.setPower(v2);
         rightFront.setPower(v3);
