@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -40,17 +41,22 @@ public class redBarrierCamera extends LinearOpMode {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Pose2d myPose = new Pose2d(10, -62, Math.toRadians(270));
         drive.setPoseEstimate(myPose);
-        Pose2d parkT = new Pose2d(3, -45, Math.toRadians(0));
+        Pose2d parkT = new Pose2d(-2, -38, Math.toRadians(0));
 
 
         Trajectory fondue = drive.trajectoryBuilder(myPose)
                 //.back(20)
-                .lineToSplineHeading(new Pose2d(3, -46, Math.toRadians(269)))
+                .lineToSplineHeading(new Pose2d(-6, -48, Math.toRadians(270)))
                 .build();
         Trajectory park = drive.trajectoryBuilder(myPose)
                 //.back(20)
                 //.lineToSplineHeading(new Pose2d(-26, -51, Math.toRadians(230)))
-                .lineToSplineHeading(new Pose2d(10, -46, Math.toRadians(0)))
+                //.lineTo(new Vector2d(6,-42))
+                .lineToSplineHeading(new Pose2d(-2, -38, Math.toRadians(0)))
+                .build();
+        Trajectory FPark = drive.trajectoryBuilder(parkT)
+                //.back(20)
+                .lineTo(new Vector2d(40, -38))
                 .build();
 
 
@@ -87,7 +93,7 @@ public class redBarrierCamera extends LinearOpMode {
         sleep(4000);
 
         int location = 0;
-
+        int targetPos = 0;
 
         //red duck side 150,350,680,880,1380,1580,600,99
         // red barrier side 440, 640, 1080, 1280, 1680, 1880, 650, 950
@@ -105,6 +111,7 @@ public class redBarrierCamera extends LinearOpMode {
 
 
         if (isStopRequested()) return;
+        LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
         finalWebcam.closeCameraDeviceAsync(new OpenCvCamera.AsyncCameraCloseListener() {
@@ -134,129 +141,95 @@ public class redBarrierCamera extends LinearOpMode {
 
         if (location == 0) {
             drive.followTrajectory(fondue);
+            targetPos = 1700;
 
-            LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            LSlides.setPower(-0.8);
-            LSlides.setTargetPosition(2000); //last number was 1600
-            LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            while (LSlides.isBusy()) {
-                telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
-                telemetry.update();
-
-                idle();
-
-            }
         } else if (location == 1) {
             drive.followTrajectory(fondue);
-            LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            LSlides.setPower(-0.8);
-            LSlides.setTargetPosition(2800);
-            LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            while (LSlides.isBusy()) {
-                telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
-                telemetry.update();
+            targetPos = 2500;
 
-                idle();
-
-            }
 
         } else if (location == 2) {
             drive.followTrajectory(fondue);
-            LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            LSlides.setPower(-0.8);
-            LSlides.setTargetPosition(4100);
-            LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            while (LSlides.isBusy()) {
-                telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
-                telemetry.update();
+            targetPos = 3600;
 
-                idle();
-
-            }
         } else {
             Wheel.setPower(0.5);
             sleep(1000);
             Wheel.setPower(0);
         }
-        if(!LSlides.isBusy()){
+        ElapsedTime extend = new ElapsedTime();
+        extend.reset();
+        while(extend.time() <= 2.0 ) {
+            if(!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
+                LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                LSlides.setPower(-0.8);
+                LSlides.setTargetPosition(targetPos); //last number was 1600
+
+                LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                while (LSlides.isBusy()) {
+                    telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
+                    telemetry.update();
+
+                    idle();
+
+                }
+            }
+        }
+
+
+
+
+
+        if(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100){
         sleep(1000);
         Bin.setPosition(1.0);
         sleep(1000);
         Bin.setPosition(0.5);
         sleep(1000);
+        }else{
+            if(!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
+                LSlides.setPower(-0.8);
+                LSlides.setTargetPosition(targetPos); //last number was 1600
+
+                LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                while (LSlides.isBusy()) {
+                    telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
+                    telemetry.update();
+
+                    idle();
+
+                }
+            }
+            if(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100){
+                sleep(1000);
+                Bin.setPosition(1.0);
+                sleep(1000);
+                Bin.setPosition(0.5);
+                sleep(1000);
+            }
         }
-        /*
-            //park trajectory
-        //drive.followTrajectory(park);
-        drive.turn(Math.toRadians(91));
 
-         */
-
-        /*LSlides.setPower(0.8);
-        LSlides.setTargetPosition(10);
-        LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        while(LSlides.isBusy()) {
-            telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
-            telemetry.update();
-
+        LSlides.setTargetPosition(0);
+        LSlides.setPower(-0.8);
+        while(LSlides.isBusy()){
             idle();
         }
+        LSlides.setPower(0);
+        if(LSlides.getCurrentPosition() >= 0 && LSlides.getCurrentPosition() <= 100) {
+            drive.followTrajectory(park);
+        }else{
+            LSlides.setTargetPosition(0);
+            LSlides.setPower(-0.8);
+            while(LSlides.isBusy()){
+                idle();
+            }
+            LSlides.setPower(0);
+            sleep(800);
+            drive.followTrajectory(park);
 
-        /*if(gamepad1.dpad_up){
-                LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                LSlides.setPower(0.8);
-                LSlides.setTargetPosition(3800);
-                LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                while(LSlides.isBusy()){
-                    telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
-                    telemetry.update();
-                    idle();
-                }
-                LSlides.setPower(0.0);
-                if(gamepad1.triangle)
-                    Bin.setPosition(1.0);
-            }
-            else if(gamepad1.dpad_left){
-                LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                LSlides.setPower(0.8);
-                LSlides.setTargetPosition(2533);
-                LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                while(LSlides.isBusy()){
-                    telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
-                    telemetry.update();
-                    idle();
-                }
-                LSlides.setPower(0.0);
-                if(gamepad1.triangle)
-                    Bin.setPosition(1.0);
-            }
-            else if(gamepad1.dpad_down){
-                LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                LSlides.setPower(0.8);
-                LSlides.setTargetPosition(1267);
-                LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                while(LSlides.isBusy()){
-                    telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
-                    telemetry.update();
-                    idle();
-                }
-                LSlides.setPower(0.0);
-                if(gamepad1.triangle)
-                    Bin.setPosition(1.0);
-            }
-            else if(gamepad1.cross){
-                Bin.setPosition(0.5);
-                LSlides.setTargetPosition(950);
-                LSlides.setPower(-0.7);
-                while(LSlides.isBusy()){
-                    telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
-                    telemetry.update();
-                }
-            }
-            else{
-                Bin.setPosition(0.5);
-            }*/
-
+        }
+        sleep(800);
+        drive.followTrajectory(FPark);
 
     }
 }
