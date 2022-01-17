@@ -6,19 +6,20 @@ Function:
     	}
 
 Arguements:
-	Wheel.setPower(0.1);
+	Wheel.setPower(0.1); //this may not be needed
         double cPower;
         double addPower = 0.1;
         double cTime = getRuntime();
+
         while(getRuntime() < cTime+10) {
-            if (getRPM() < 69.00) {
-                while (getRPM() < 69.00) {
+            if (getRPM() < 200.00) {
+                while (getRPM() < 200.00) {
                     cPower = Wheel.getPower();
                     Wheel.setPower(cPower + addPower);
                 }
 
-            } else if (getRPM() > 69.00) {
-                while (getRPM() > 69.00) {
+            } else if (getRPM() > 200.00) {
+                while (getRPM() > 200.00) {
                     cPower = Wheel.getPower();
                     Wheel.setPower(cPower - addPower);
                 }
