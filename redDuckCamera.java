@@ -21,7 +21,8 @@ import java.util.List;
 @Autonomous (group = "Drive")
 public class redDuckCamera extends LinearOpMode {
     private DcMotorEx LSlides, Wheel;
-
+    distance = hardwareMap.get(DistanceSensor.class, "Distance");
+    distance.getDistance(DistanceUnit.INCH);
     private Servo Bin;
     public ElapsedTime wheelRun = new ElapsedTime(0);
 
