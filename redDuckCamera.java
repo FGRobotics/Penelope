@@ -135,17 +135,25 @@ public class redDuckCamera extends LinearOpMode {
         telemetry.addData("Slides tick position: ", LSlides.getCurrentPosition());
         telemetry.update();
 
-
+        double difference = 0;
+        difference = 14.5 - distance.getDistance(DistanceUnit.INCH);
+        Trajectory fix = drive.trajectoryBuilder(new Pose2d())
+                .forward(difference)
+                .build();
+        
         if (location == 0) {
+            drive.followTrajectory(fix);
             drive.followTrajectory(fondue);
             targetPos = 1700;
 
         } else if (location == 1) {
+            drive.followTrajectory(fix);
             drive.followTrajectory(fondue);
             targetPos = 2500;
 
 
         } else if (location == 2) {
+            drive.followTrajectory(fix);
             drive.followTrajectory(fondue);
             targetPos = 3600;
 
