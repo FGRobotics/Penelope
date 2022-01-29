@@ -7,10 +7,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -21,8 +24,7 @@ import java.util.List;
 @Autonomous (group = "Drive")
 public class redDuckCamera extends LinearOpMode {
     private DcMotorEx LSlides, Wheel;
-    distance = hardwareMap.get(DistanceSensor.class, "Distance");
-    distance.getDistance(DistanceUnit.INCH);
+    DistanceSensor distance;
     private Servo Bin;
     public ElapsedTime wheelRun = new ElapsedTime(0);
 
@@ -30,31 +32,47 @@ public class redDuckCamera extends LinearOpMode {
     private List<DcMotorEx> motors;
 
     @Override
-    public void runOpMode() throws InterruptedException{
+    public void runOpMode() throws InterruptedException {
 
         Wheel = hardwareMap.get(DcMotorEx.class, "Wheel");
         LSlides = hardwareMap.get(DcMotorEx.class, "LSlides");
         Bin = hardwareMap.get(Servo.class, "Bin");
-
+        distance = hardwareMap.get(DistanceSensor.class, "toaster");
+        distance.getDistance(DistanceUnit.INCH);
 //Bin start position - 0.4 is too low and cause problems coming back in, 0.5 cause issues intaking sometimes
         Bin.setPosition(0.5);
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Pose2d myPose = new Pose2d(-30, -62, Math.toRadians(270));//intake facing back wall
         drive.setPoseEstimate(myPose);
+        double difference = 0;
+
 
         Trajectory fondue = drive.trajectoryBuilder(myPose)
                 //.back(20)
                 //.lineTo(new Vector2d(-20,-45))
-                .lineToSplineHeading(new Pose2d(-15, -48, Math.toRadians(270)))
+                .lineToSplineHeading(new Pose2d(-16, -50, Math.toRadians(267)),
+                        SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
 
 
         Trajectory duck = drive.trajectoryBuilder(fondue.end())
 
-                .lineTo(new Vector2d(-45,-45)) // x was -55 : y was -50
+                .lineToSplineHeading(new Pose2d(-56, -50, Math.toRadians(260)),
+                        SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(22)) // x was -55 : y was -50
 
                 .build();
+        Trajectory park = drive.trajectoryBuilder(duck.end())
+                .lineToSplineHeading(new Pose2d(-57, -28, Math.toRadians(270)))
+                .build();
+        /*Trajectory left = drive.trajectoryBuilder(myPose)
+                .strafeLeft(12)
+                .build();
+        Trajectory up = drive.trajectoryBuilder(left.end())
+                .back(14.5)
+                .build();*/
 
 
         waitForStart();
@@ -87,7 +105,7 @@ public class redDuckCamera extends LinearOpMode {
             }
         });
 
-        sleep(4000);
+        sleep(3500);
 
         int location = 0;
         int targetPos = 0;
@@ -95,15 +113,13 @@ public class redDuckCamera extends LinearOpMode {
         //red duck side 150,350,680,880,1380,1580,600,99
         // red barrier side 440, 640, 1080, 1280, 1680, 1880, 650, 950
 
-        ConceptCV.configureRects(150,350,680,880,1380,1580,600,99);
-
+        ConceptCV.configureRects(150, 350, 680, 880, 1380, 1580, 600, 99);
+        ConceptCV.translateRects(0, 0, 0, 300);
         location = ConceptCV.findTSE();
         sleep(2000);
         location = ConceptCV.findTSE();
         telemetry.addLine("location: " + location);
         telemetry.update();
-
-
 
 
         sleep(2000);
@@ -112,7 +128,7 @@ public class redDuckCamera extends LinearOpMode {
         if (isStopRequested()) return;
 
 
-        finalWebcam.closeCameraDeviceAsync(new OpenCvCamera.AsyncCameraCloseListener(){
+        finalWebcam.closeCameraDeviceAsync(new OpenCvCamera.AsyncCameraCloseListener() {
 
 
             @Override
@@ -126,7 +142,7 @@ public class redDuckCamera extends LinearOpMode {
         // Variable setup
         int cPos = LSlides.getCurrentPosition();
         double LSlidesPower = 0.0;
-        double LSlidesRotation = (LSlides.getCurrentPosition()/1680.0);
+        double LSlidesRotation = (LSlides.getCurrentPosition() / 1680.0);
         double upRange = 0.5;
         double downRange = 1.0;
         //Telemetry
@@ -136,38 +152,46 @@ public class redDuckCamera extends LinearOpMode {
         telemetry.addData("Slides tick position: ", LSlides.getCurrentPosition());
         telemetry.update();
 
-        double difference = 0;
-        difference = 14.5 - distance.getDistance(DistanceUnit.INCH);
-        Trajectory fix = drive.trajectoryBuilder(new Pose2d())
-                .forward(difference)
-                .build();
-        
+
         if (location == 0) {
-            drive.followTrajectory(fix);
             drive.followTrajectory(fondue);
-            targetPos = 1700;
+            if (distance.getDistance(DistanceUnit.INCH) < 20) {
+                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 7100;
+                //targetPos = 1700;
+            } else {
+                targetPos = 1700;
+            }
 
         } else if (location == 1) {
-            drive.followTrajectory(fix);
             drive.followTrajectory(fondue);
-            targetPos = 2500;
-
+            if (distance.getDistance(DistanceUnit.INCH) < 20) {
+                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 7600;
+            } else {
+                targetPos = 2500;
+            }
 
         } else if (location == 2) {
-            drive.followTrajectory(fix);
             drive.followTrajectory(fondue);
-            targetPos = 3600;
+            if (distance.getDistance(DistanceUnit.INCH) < 20) {
+                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 9100;
+            } else {
+                targetPos = 3600;
+            }
 
         } else {
             Wheel.setPower(0.5);
             sleep(1000);
             Wheel.setPower(0);
         }
+        difference = 18 - distance.getDistance(DistanceUnit.INCH);
+        telemetry.addData("dISTANCE: ", distance.getDistance(DistanceUnit.INCH));
+        telemetry.addData("Differnec", difference);
+        telemetry.update();
 
         ElapsedTime extend = new ElapsedTime();
         extend.reset();
-        while(extend.time() <= 2.0 ) {
-            if(!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
+        while (extend.time() <= 2.0) {
+            if (!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
                 LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 LSlides.setPower(-0.8);
                 LSlides.setTargetPosition(targetPos); //last number was 1600
@@ -184,17 +208,14 @@ public class redDuckCamera extends LinearOpMode {
         }
 
 
-
-
-
-        if(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100){
+        if (LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100) {
             sleep(1000);
             Bin.setPosition(1.0);
             sleep(1000);
             Bin.setPosition(0.5);
             sleep(1000);
-        }else{
-            if(!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
+        } else {
+            if (!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
                 LSlides.setPower(-0.8);
                 LSlides.setTargetPosition(targetPos); //last number was 1600
 
@@ -207,7 +228,7 @@ public class redDuckCamera extends LinearOpMode {
 
                 }
             }
-            if(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100){
+            if (LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100) {
                 sleep(1000);
                 Bin.setPosition(1.0);
                 sleep(1000);
@@ -218,14 +239,38 @@ public class redDuckCamera extends LinearOpMode {
 
         LSlides.setTargetPosition(0);
         LSlides.setPower(-0.8);
-        while(LSlides.isBusy()){
+        while (LSlides.isBusy()) {
             idle();
         }
         LSlides.setPower(0);
 
-        drive.followTrajectory(duck);
+
+        if (LSlides.getCurrentPosition() >= 0 && LSlides.getCurrentPosition() <= 100) {
+            drive.followTrajectory(duck);
+        } else {
+            LSlides.setTargetPosition(0);
+            LSlides.setPower(-0.8);
+            while (LSlides.isBusy()) {
+                idle();
+            }
+            LSlides.setPower(0);
+            sleep(800);
+            drive.followTrajectory(duck);
+
+
+            sleep(800);
+            drive.turn(Math.toRadians(5));
+            sleep(400);
+            extend.reset();
+            while (extend.time() <= 3.00) {
+                Wheel.setPower(-0.6);
+            }
+            //sleep(3000);
+            Wheel.setPower(0);
+            sleep(800);
+            drive.followTrajectory(park);
+        }
+
+
     }
-
-
 }
-

@@ -7,10 +7,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -21,7 +23,7 @@ import java.util.List;
 @Autonomous(group = "Drive")
 public class redBarrierCamera extends LinearOpMode {
     private DcMotorEx LSlides, Wheel;
-
+    DistanceSensor distance;
     private Servo Bin;
     public ElapsedTime wheelRun = new ElapsedTime(0);
 
@@ -34,29 +36,32 @@ public class redBarrierCamera extends LinearOpMode {
         Wheel = hardwareMap.get(DcMotorEx.class, "Wheel");
         LSlides = hardwareMap.get(DcMotorEx.class, "LSlides");
         Bin = hardwareMap.get(Servo.class, "Bin");
-
+        distance = hardwareMap.get(DistanceSensor.class, "toaster");
+        distance.getDistance(DistanceUnit.INCH);
 //Bin start position - 0.4 is too low and cause problems coming back in, 0.5 cause issues intaking sometimes
         Bin.setPosition(0.5);
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Pose2d myPose = new Pose2d(10, -62, Math.toRadians(270));
         drive.setPoseEstimate(myPose);
-        Pose2d parkT = new Pose2d(-2, -38, Math.toRadians(0));
+        double difference = 0;
+
+        Pose2d parkT = new Pose2d(-2, -36, Math.toRadians(0));
 
 
         Trajectory fondue = drive.trajectoryBuilder(myPose)
                 //.back(20)
-                .lineToSplineHeading(new Pose2d(-6, -48, Math.toRadians(270)))
+                .lineToSplineHeading(new Pose2d(-9, -48, Math.toRadians(270)))
                 .build();
         Trajectory park = drive.trajectoryBuilder(myPose)
                 //.back(20)
                 //.lineToSplineHeading(new Pose2d(-26, -51, Math.toRadians(230)))
                 //.lineTo(new Vector2d(6,-42))
-                .lineToSplineHeading(new Pose2d(-2, -38, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(-2, -36, Math.toRadians(10)))
                 .build();
         Trajectory FPark = drive.trajectoryBuilder(parkT)
                 //.back(20)
-                .lineTo(new Vector2d(40, -38))
+                .lineTo(new Vector2d(40, -36))
                 .build();
 
 
@@ -139,24 +144,43 @@ public class redBarrierCamera extends LinearOpMode {
         telemetry.update();
 
 
+
         if (location == 0) {
             drive.followTrajectory(fondue);
-            targetPos = 1700;
-
+            if(distance.getDistance(DistanceUnit.INCH) < 20) {
+                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 6750;
+                //targetPos = 1700;
+            }else{
+                targetPos = 1700;
+            }
         } else if (location == 1) {
             drive.followTrajectory(fondue);
-            targetPos = 2500;
+            if(distance.getDistance(DistanceUnit.INCH) < 20) {
+                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 7600;
+            }else{
+                targetPos = 2500;
+            }
+            //targetPos = 2500;
 
 
         } else if (location == 2) {
             drive.followTrajectory(fondue);
-            targetPos = 3600;
-
+            if(distance.getDistance(DistanceUnit.INCH) < 20) {
+                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 9000;
+            }else {
+                targetPos = 3600;
+            }
         } else {
             Wheel.setPower(0.5);
             sleep(1000);
             Wheel.setPower(0);
         }
+
+        difference = 18 - distance.getDistance(DistanceUnit.INCH);
+        telemetry.addData("dISTANCE: ", distance.getDistance(DistanceUnit.INCH));
+        telemetry.addData("Differnec", difference);
+        telemetry.update();
+
         ElapsedTime extend = new ElapsedTime();
         extend.reset();
         while(extend.time() <= 2.0 ) {
@@ -167,8 +191,8 @@ public class redBarrierCamera extends LinearOpMode {
 
                 LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 while (LSlides.isBusy()) {
-                    telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
-                    telemetry.update();
+                    //telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
+                    //telemetry.update();
 
                     idle();
 
@@ -193,8 +217,8 @@ public class redBarrierCamera extends LinearOpMode {
 
                 LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 while (LSlides.isBusy()) {
-                    telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
-                    telemetry.update();
+                    //telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
+                    //telemetry.update();
 
                     idle();
 
