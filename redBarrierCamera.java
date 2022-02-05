@@ -38,6 +38,7 @@ public class redBarrierCamera extends LinearOpMode {
         Bin = hardwareMap.get(Servo.class, "Bin");
         distance = hardwareMap.get(DistanceSensor.class, "toaster");
         distance.getDistance(DistanceUnit.INCH);
+
 //Bin start position - 0.4 is too low and cause problems coming back in, 0.5 cause issues intaking sometimes
         Bin.setPosition(0.5);
 
@@ -57,7 +58,7 @@ public class redBarrierCamera extends LinearOpMode {
                 //.back(20)
                 //.lineToSplineHeading(new Pose2d(-26, -51, Math.toRadians(230)))
                 //.lineTo(new Vector2d(6,-42))
-                .lineToSplineHeading(new Pose2d(-2, -36, Math.toRadians(10)))
+                .lineToSplineHeading(new Pose2d(-2, -36, Math.toRadians(0)))
                 .build();
         Trajectory FPark = drive.trajectoryBuilder(parkT)
                 //.back(20)
@@ -67,8 +68,9 @@ public class redBarrierCamera extends LinearOpMode {
 
         waitForStart();
         Wheel.setPower(0.5);
-        sleep(500);
+        sleep(800);
         Wheel.setPower(0);
+
         OpenCvWebcam webcam;
         int test = 1;
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -97,7 +99,7 @@ public class redBarrierCamera extends LinearOpMode {
 
         sleep(4000);
 
-        int location = 0;
+        int location = 2;
         int targetPos = 0;
 
         //red duck side 150,350,680,880,1380,1580,600,99

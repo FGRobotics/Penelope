@@ -59,13 +59,13 @@ public class redDuckCamera extends LinearOpMode {
 
         Trajectory duck = drive.trajectoryBuilder(fondue.end())
 
-                .lineToSplineHeading(new Pose2d(-56, -50, Math.toRadians(260)),
+                .lineToSplineHeading(new Pose2d(-56, -52, Math.toRadians(260)),
                         SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(22)) // x was -55 : y was -50
 
                 .build();
         Trajectory park = drive.trajectoryBuilder(duck.end())
-                .lineToSplineHeading(new Pose2d(-57, -28, Math.toRadians(270)))
+                .lineToSplineHeading(new Pose2d(-57, -32, Math.toRadians(270)))
                 .build();
         /*Trajectory left = drive.trajectoryBuilder(myPose)
                 .strafeLeft(12)
@@ -105,9 +105,9 @@ public class redDuckCamera extends LinearOpMode {
             }
         });
 
-        sleep(3500);
+        sleep(4000);
 
-        int location = 0;
+        int location = 2;
         int targetPos = 0;
 
         //red duck side 150,350,680,880,1380,1580,600,99
@@ -156,7 +156,7 @@ public class redDuckCamera extends LinearOpMode {
         if (location == 0) {
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 20) {
-                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 7100;
+                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 6650;
                 //targetPos = 1700;
             } else {
                 targetPos = 1700;
@@ -256,11 +256,11 @@ public class redDuckCamera extends LinearOpMode {
             LSlides.setPower(0);
             sleep(800);
             drive.followTrajectory(duck);
+        }
 
-
-            sleep(800);
+            //sleep(800);
             drive.turn(Math.toRadians(5));
-            sleep(400);
+            //sleep(400);
             extend.reset();
             while (extend.time() <= 3.00) {
                 Wheel.setPower(-0.6);
@@ -269,7 +269,7 @@ public class redDuckCamera extends LinearOpMode {
             Wheel.setPower(0);
             sleep(800);
             drive.followTrajectory(park);
-        }
+
 
 
     }
