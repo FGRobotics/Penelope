@@ -51,17 +51,15 @@ public class redBarrierCamera extends LinearOpMode {
 
 
         Trajectory fondue = drive.trajectoryBuilder(myPose)
-                //.back(20)
+                
                 .lineToSplineHeading(new Pose2d(-9, -48, Math.toRadians(270)))
                 .build();
+        
         Trajectory park = drive.trajectoryBuilder(myPose)
-                //.back(20)
-                //.lineToSplineHeading(new Pose2d(-26, -51, Math.toRadians(230)))
-                //.lineTo(new Vector2d(6,-42))
                 .lineToSplineHeading(new Pose2d(-2, -36, Math.toRadians(0)))
                 .build();
+        
         Trajectory FPark = drive.trajectoryBuilder(parkT)
-                //.back(20)
                 .lineTo(new Vector2d(40, -36))
                 .build();
 
