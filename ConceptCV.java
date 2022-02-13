@@ -52,7 +52,7 @@ public class ConceptCV extends OpenCvPipeline {
     public static Scalar UpHsv = new Scalar(255.0, 120.0, 120.0);
     Rect bounding_rect = new Rect();
     public static MatOfByte mob=new MatOfByte();
-    public static int maxAt = 0;
+    public static int maxAt = 2;
     public static void configureRects(int z1,int z2,int z3, int z4, int z5, int z6, int p1, int p2){
         x1 = z1;
         x2 = z2;

@@ -46,7 +46,7 @@ public class blueBarrierCamera extends LinearOpMode {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Pose2d myPose = new Pose2d(10, 62, Math.toRadians(90));
         drive.setPoseEstimate(myPose);
-        Pose2d parkT = new Pose2d(10, 62, Math.toRadians(0));
+        Pose2d parkT = new Pose2d(10, 48, Math.toRadians(0));
         double difference = 0;
 
 
@@ -56,10 +56,10 @@ public class blueBarrierCamera extends LinearOpMode {
                 .build();
         Trajectory park = drive.trajectoryBuilder(fondue.end())
                 //.back(20)
-                .lineToSplineHeading(new Pose2d(10, 58, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(10, 48, Math.toRadians(0)))
                 .build();
         Trajectory FPark = drive.trajectoryBuilder(parkT)
-                .lineTo(new Vector2d(40, 36))
+                .lineTo(new Vector2d(60, 48))
                 .build();
 
         waitForStart();
@@ -147,7 +147,7 @@ public class blueBarrierCamera extends LinearOpMode {
             if (location == 0) {
                 drive.followTrajectory(fondue);
                 if(distance.getDistance(DistanceUnit.INCH) < 20) {
-                    targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 6750;
+                    targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 6850;
                     //targetPos = 1700;
                 }else{
                     targetPos = 1700;
@@ -165,12 +165,12 @@ public class blueBarrierCamera extends LinearOpMode {
                 drive.followTrajectory(fondue);
                 if(distance.getDistance(DistanceUnit.INCH) < 20) {
                     targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 9000;
-                }else {
-                    targetPos = 3600;
-                }
-            } else {
-                Wheel.setPower(0.5);
-                sleep(1000);
+            }else {
+            targetPos = 3600;
+        }
+    } else {
+        Wheel.setPower(0.5);
+        sleep(1000);
                 Wheel.setPower(0);
             }
 
@@ -264,7 +264,7 @@ public class blueBarrierCamera extends LinearOpMode {
 
         //drive.followTrajectory(fondue);
             //drive.turn(Math.toRadians(0));
-        // drive.followTrajectory(park);
+        drive.followTrajectory(FPark);
 
         }
 
