@@ -257,3 +257,29 @@ public class redBarrierCamera extends LinearOpMode {
 
     }
 }
+/*
+ Pose2d parkT = new Pose2d(-2, -42, Math.toRadians(5));
+
+
+        Trajectory fondue = drive.trajectoryBuilder(myPose)
+                //.back(20)
+                .lineToSplineHeading(new Pose2d(-9, -51, Math.toRadians(270)),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(30))
+                .build();
+        Trajectory park = drive.trajectoryBuilder(myPose)
+                //.back(20)
+                //.lineToSplineHeading(new Pose2d(-26, -51, Math.toRadians(230)))
+                //.lineTo(new Vector2d(6,-42))
+                .lineToSplineHeading(new Pose2d(-2, -42, Math.toRadians(5)))
+                .build();
+        Trajectory FPark = drive.trajectoryBuilder(parkT)
+                //.back(20)
+                .lineTo(new Vector2d(60, -42),
+                        SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(40))
+                .build();
+        Trajectory FFPark = drive.trajectoryBuilder(FPark.end())
+                .lineToSplineHeading(new Pose2d(60, -50, Math.toRadians(5)))
+                .build();
+*/
