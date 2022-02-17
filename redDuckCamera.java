@@ -282,7 +282,7 @@ new trajectories:
 Trajectory fondue = drive.trajectoryBuilder(myPose)
                 //.back(20)
                 //.lineTo(new Vector2d(-20,-45))
-                .lineToSplineHeading(new Pose2d(-2, -37, Math.toRadians(267)))//, //x=-16,y=-50, angle = 267
+                .lineToSplineHeading(new Pose2d(-2, -37, Math.toRadians(267)))
                         //SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         //SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
@@ -290,35 +290,13 @@ Trajectory fondue = drive.trajectoryBuilder(myPose)
 
         Trajectory duck = drive.trajectoryBuilder(fondue.end())
 
-                //.lineToSplineHeading(new Pose2d(-58, -55, Math.toRadians(270)))//, // x= -56, y=-50
-                .lineTo(new Vector2d(-58,-55))
-
+                .lineToSplineHeading(new Pose2d(-60, -61, Math.toRadians(260)))
                         //SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        //SampleMecanumDrive.getAccelerationConstraint(22)) // x was -55 : y was -50 DON'T WORRY ABOUT THESE
+                        //SampleMecanumDrive.getAccelerationConstraint(22)) // x was -55 : y was -50
 
                 .build();
-        Trajectory duckII = drive.trajectoryBuilder(duck.end())
-                //.lineToSplineHeading(new Pose2d(-58,-58,Math.toRadians(260)))
-                //.forward(10)
-                .lineTo(new Vector2d(-60,-56))
-                .build();
-
         Trajectory park = drive.trajectoryBuilder(duck.end())
-                .lineToSplineHeading(new Pose2d(-57, -28, Math.toRadians(270)))
+                .lineToSplineHeading(new Pose2d(-60, -37, Math.toRadians(269)))
                 .build();
-                
-                
-Implimentation of duckII:
-
-        if (LSlides.getCurrentPosition() >= 0 && LSlides.getCurrentPosition() <= 100) {
-            drive.followTrajectory(duck);
-            drive.followTrajectory(duckII);
-
-        } else {
-            LSlides.setTargetPosition(0);
-            LSlides.setPower(-0.8);
-            while (LSlides.isBusy()) {
-                idle();
-            }
                 
 */
