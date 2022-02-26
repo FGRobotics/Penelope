@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
+
+
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
@@ -38,6 +41,22 @@ public class doublePickup extends LinearOpMode {
         Bin = hardwareMap.get(Servo.class, "Bin");
         distance = hardwareMap.get(DistanceSensor.class, "toaster");
         distance.getDistance(DistanceUnit.INCH);
+        
+        
+        BNO055IMU imu;
+
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+        parameters.mode                = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled      = false;
+
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+        imu.initialize(parameters);
+
         
         rightDistance = hardwareMap.get(DistanceSensor.class, "wheelSensor");
         rightDistance.getDistance(DistanceUnit.INCH);
@@ -265,8 +284,9 @@ public class doublePickup extends LinearOpMode {
       
       
       
-      
-        Pose2d inWarehouse = new Pose2d(rightSide, front, Math.toRadians(0));
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        double angle = 270 - angles.firstAngle;
+        Pose2d inWarehouse = new Pose2d(rightSide, front, Math.toRadians(angle));
 
     }
 }
