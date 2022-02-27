@@ -22,24 +22,32 @@ public class DistTest extends LinearOpMode {
         LSlides.setDirection(DcMotorSimple.Direction.REVERSE);
         int targetPos = -1000;
         waitForStart();
+        LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         while(opModeIsActive()) {
 
             telemetry.addData("Turn Value Wheel", wheelSensor.getDistance(DistanceUnit.INCH));
             telemetry.addData("Slides distance", distance.getDistance(DistanceUnit.INCH));
             telemetry.addData("targetPosition", targetPos);
             telemetry.update();
-            if (gamepad1.triangle){
-                targetPos = targetPos + 50;
+            if (gamepad1.dpad_up){
+                targetPos = targetPos - 50;
             }
-            if (gamepad1.square){
-                LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            if (gamepad1.dpad_left){
+                targetPos = targetPos + 10;
+            }
+            while (gamepad1.square){
                 LSlides.setPower(-0.8);
                 LSlides.setTargetPosition(0);
+                if(LSlides.isBusy()){
+                    idle();
+                }
             }
-            if (gamepad1.cross) {
-                LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            while (gamepad1.cross) {
                 LSlides.setPower(-0.8);
                 LSlides.setTargetPosition(targetPos);
+                if(LSlides.isBusy()){
+                    idle();
+                }
             }
             telemetry.update();
 
