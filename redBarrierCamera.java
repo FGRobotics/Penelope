@@ -7,12 +7,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -22,7 +24,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 import java.util.List;
 @Autonomous(group = "Drive")
 public class redBarrierCamera extends LinearOpMode {
-    private DcMotorEx LSlides, Wheel;
+    private DcMotorEx LSlides, Wheel, LEDs, Intake;
     DistanceSensor distance;
     private Servo Bin;
     public ElapsedTime wheelRun = new ElapsedTime(0);
@@ -32,14 +34,17 @@ public class redBarrierCamera extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-
+        Intake = hardwareMap.get(DcMotorEx.class, "Intake");
         Wheel = hardwareMap.get(DcMotorEx.class, "Wheel");
         LSlides = hardwareMap.get(DcMotorEx.class, "LSlides");
+        LSlides.setDirection(DcMotorSimple.Direction.REVERSE);
         Bin = hardwareMap.get(Servo.class, "Bin");
         distance = hardwareMap.get(DistanceSensor.class, "toaster");
         distance.getDistance(DistanceUnit.INCH);
+        LEDs = hardwareMap.get(DcMotorEx.class, "LEDs");
+        LEDs.setDirection(DcMotorSimple.Direction.REVERSE);
 
-//Bin start position - 0.4 is too low and cause problems coming back in, 0.5 cause issues intaking sometimes
+        //Bin start position - 0.4 is too low and cause problems coming back in, 0.5 cause issues intaking sometimes
         Bin.setPosition(0.5);
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
@@ -47,27 +52,32 @@ public class redBarrierCamera extends LinearOpMode {
         drive.setPoseEstimate(myPose);
         double difference = 0;
 
-        Pose2d parkT = new Pose2d(-2, -36, Math.toRadians(0));
+        Pose2d parkT = new Pose2d(-2, -42, Math.toRadians(5));
 
 
         Trajectory fondue = drive.trajectoryBuilder(myPose)
-                
-                .lineToSplineHeading(new Pose2d(-9, -48, Math.toRadians(270)))
+
+                .lineToSplineHeading(new Pose2d(-14, -49, Math.toRadians(270))) //-51
                 .build();
-        
+
         Trajectory park = drive.trajectoryBuilder(myPose)
-                .lineToSplineHeading(new Pose2d(-2, -36, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(-2, -42, Math.toRadians(5)))
                 .build();
-        
+
         Trajectory FPark = drive.trajectoryBuilder(parkT)
-                .lineTo(new Vector2d(40, -36))
+                .lineTo(new Vector2d(60, -42),
+                        SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(40))
+                .build();
+        Trajectory FFPark = drive.trajectoryBuilder(FPark.end())
+                .lineToSplineHeading(new Pose2d(55, -50, Math.toRadians(-75)))
+                .build();
+        Trajectory toBlocks = drive.trajectoryBuilder(FFPark.end())
+                .lineToSplineHeading(new Pose2d(55, -70, Math.toRadians(-75)))
                 .build();
 
 
-        waitForStart();
-        Wheel.setPower(0.5);
-        sleep(800);
-        Wheel.setPower(0);
+
 
         OpenCvWebcam webcam;
         int test = 1;
@@ -79,6 +89,7 @@ public class redBarrierCamera extends LinearOpMode {
         webcam.setPipeline(myPipeline);
 
         OpenCvWebcam finalWebcam = webcam;
+
         finalWebcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
@@ -95,24 +106,29 @@ public class redBarrierCamera extends LinearOpMode {
             }
         });
 
-        sleep(4000);
 
         int location = 2;
         int targetPos = 0;
+        while(!opModeIsActive()) {
+            //int testRun = 1;
+            //int finalTestRun = testRun;
+            //telemetry.addData("Pass number ", finalTestRun);
+            telemetry.update();
 
-        //red duck side 150,350,680,880,1380,1580,600,99
-        // red barrier side 440, 640, 1080, 1280, 1680, 1880, 650, 950
+            //red duck side 150,350,680,880,1380,1580,600,99
+            // red barrier side 440, 640, 1080, 1280, 1680, 1880, 650, 950
 
-        ConceptCV.configureRects(440, 640, 1080, 1280, 1680, 1880, 650, 950);
+            ConceptCV.configureRects(440, 640, 1080, 1280, 1680, 1880, 650, 950);
 
-        location = ConceptCV.findTSE();
-        sleep(2000);
+            location = ConceptCV.findTSE();
+            telemetry.addData("location: " , location);
+            telemetry.update();
+            //testRun++;
+        }
+        waitForStart();
         location = ConceptCV.findTSE();
         telemetry.addLine("location: " + location);
         telemetry.update();
-
-
-        sleep(2000);
 
 
         if (isStopRequested()) return;
@@ -146,17 +162,26 @@ public class redBarrierCamera extends LinearOpMode {
 
 
         if (location == 0) {
+            LEDs.setPower(.5);
+            sleep(200);
+            LEDs.setPower(0);
             drive.followTrajectory(fondue);
             if(distance.getDistance(DistanceUnit.INCH) < 20) {
-                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 6750;
+                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 5455;
                 //targetPos = 1700;
             }else{
                 targetPos = 1700;
             }
         } else if (location == 1) {
+            LEDs.setPower(.5);
+            LEDs.setPower(0);
+            sleep(200);
+            LEDs.setPower(0.5);
+            sleep(200);
+            LEDs.setPower(0);
             drive.followTrajectory(fondue);
             if(distance.getDistance(DistanceUnit.INCH) < 20) {
-                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 7600;
+                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 5680;
             }else{
                 targetPos = 2500;
             }
@@ -164,9 +189,18 @@ public class redBarrierCamera extends LinearOpMode {
 
 
         } else if (location == 2) {
+            LEDs.setPower(.5);
+            LEDs.setPower(0);
+            sleep(200);
+            LEDs.setPower(0.5);
+            LEDs.setPower(0);
+            sleep(200);
+            LEDs.setPower(0.5);
+            sleep(200);
+            LEDs.setPower(0);
             drive.followTrajectory(fondue);
             if(distance.getDistance(DistanceUnit.INCH) < 20) {
-                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 9000;
+                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 6135;
             }else {
                 targetPos = 3600;
             }
@@ -205,11 +239,11 @@ public class redBarrierCamera extends LinearOpMode {
 
 
         if(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100){
-        sleep(1000);
-        Bin.setPosition(1.0);
-        sleep(1000);
-        Bin.setPosition(0.5);
-        sleep(1000);
+            sleep(1000);
+            Bin.setPosition(1.0);
+            sleep(1000);
+            Bin.setPosition(0.5);
+            sleep(1000);
         }else{
             if(!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
                 LSlides.setPower(-0.8);
@@ -254,6 +288,12 @@ public class redBarrierCamera extends LinearOpMode {
         }
         sleep(800);
         drive.followTrajectory(FPark);
+        drive.followTrajectory(FFPark);
+        Intake.setPower(0.5);
+        drive.followTrajectory(toBlocks);
+        while(opModeIsActive()){
+            Intake.setPower(0.75);
+        }
 
     }
 }
