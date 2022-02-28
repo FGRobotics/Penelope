@@ -55,8 +55,8 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
 @TeleOp(name="FrenzyTelev1")
 public class freightFrenzyTeleOpv1 extends LinearOpMode {
     private DcMotorEx leftFront, leftRear, rightRear, rightFront, LSlides, Wheel, Intake, LEDs;
-    private Servo Bin, Claw, UpTurret, HorizontallyTurret, initTurret;
-    private CRServo extendTurret;
+    private Servo Bin, initTurret, UpTurret;
+    private CRServo extendTurret, HorizontallyTurret;
 
 
     private List<DcMotorEx> motors;
@@ -76,10 +76,10 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
         Intake = hardwareMap.get(DcMotorEx.class, "Intake");
         Wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         LSlides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //UpTurret = hardwareMap.get(Servo.class, "UpTurret");
-        //HorizontallyTurret = hardwareMap.get(Servo.class, "horizontalTurret");
-        //initTurret = hardwareMap.get(Servo.class, "susControl");
-        //extendTurret = hardwareMap.get(CRServo.class, "extendTurret");
+        UpTurret = hardwareMap.get(Servo.class, "tilt");
+        HorizontallyTurret = hardwareMap.get(CRServo.class, "pan");
+        initTurret = hardwareMap.get(Servo.class, "susControl");
+        extendTurret = hardwareMap.get(CRServo.class, "extend");
 
 
 
@@ -104,7 +104,7 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
 
         waitForStart();
         //moves turret up
-        //initTurret.setPosition(1);
+        initTurret.setPosition(.8);
         while (opModeIsActive()) {
             // Variable setup
             double fortuneIII;
@@ -232,6 +232,28 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
             //Wheel.setPower(wheelPower);
 
             //Turret
+
+            while(gamepad2.right_stick_y > 0.5) {
+                UpTurret.setPosition(UpTurret.getPosition() + -0.1*0.005);
+            }
+            while(gamepad2.right_stick_y < -0.5){
+                UpTurret.setPosition(UpTurret.getPosition() + 0.1*0.005);
+            }
+            HorizontallyTurret.setPower(gamepad2.right_stick_x);
+            if (gamepad2.dpad_up){
+                extendTurret.setPower(1);
+            }else if(gamepad2.dpad_down){
+                extendTurret.setPower(-1);
+            }else {
+                extendTurret.setPower(0);
+            }
+
+            if(gamepad2.cross){
+                initTurret.setPosition(initTurret.getPosition() - 0.1*0.005);
+            }
+            if(gamepad2.square){
+                initTurret.setPosition(initTurret.getPosition() + 0.1*0.005);
+            }
 
 
             //Wheel exponential

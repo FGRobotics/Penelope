@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -24,7 +25,7 @@ import java.util.List;
 @Autonomous(group = "Drive")
 
 public class blueBarrierCamera extends LinearOpMode {
-    private DcMotorEx LSlides, Wheel;
+    private DcMotorEx LSlides, Wheel, LEDs;
     DistanceSensor distance;
     private Servo Bin;
     public ElapsedTime wheelRun = new ElapsedTime(0);
@@ -40,8 +41,10 @@ public class blueBarrierCamera extends LinearOpMode {
         Wheel = hardwareMap.get(DcMotorEx.class, "Wheel");
         distance = hardwareMap.get(DistanceSensor.class, "toaster");
         distance.getDistance(DistanceUnit.INCH);
+        LEDs = hardwareMap.get(DcMotorEx.class, "LEDs");
 //Bin start position - 0.4 is too low and cause problems coming back in, 0.5 cause issues intaking sometimes
         Bin.setPosition(0.5);
+        LEDs.setDirection(DcMotorSimple.Direction.REVERSE);
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Pose2d myPose = new Pose2d(10, 62, Math.toRadians(90));
@@ -52,7 +55,7 @@ public class blueBarrierCamera extends LinearOpMode {
 
         Trajectory fondue = drive.trajectoryBuilder(myPose)
                 //.back(20)
-                .lineToSplineHeading(new Pose2d(-4, 50, Math.toRadians(89)))
+                .lineToSplineHeading(new Pose2d(-18, 37, Math.toRadians(80)))
                 .build();
         Trajectory park = drive.trajectoryBuilder(fondue.end())
                 //.back(20)
@@ -145,26 +148,44 @@ public class blueBarrierCamera extends LinearOpMode {
 
 
             if (location == 0) {
+                LEDs.setPower(.5);
+                sleep(200);
+                LEDs.setPower(0);
                 drive.followTrajectory(fondue);
                 if(distance.getDistance(DistanceUnit.INCH) < 20) {
-                    targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 6850;
+                    targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 3750;
                     //targetPos = 1700;
                 }else{
                     targetPos = 1700;
                 }
             } else if (location == 1) {
+                LEDs.setPower(.5);
+                LEDs.setPower(0);
+                sleep(200);
+                LEDs.setPower(0.5);
+                sleep(200);
+                LEDs.setPower(0);
                 drive.followTrajectory(fondue);
                 if(distance.getDistance(DistanceUnit.INCH) < 20) {
-                    targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 7600;
+                    targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -4210;
                 }else{
                     targetPos = 2500;
                 }
                 //targetPos = 2500;
 
             } else if (location == 2) {
+                LEDs.setPower(.5);
+                LEDs.setPower(0);
+                sleep(200);
+                LEDs.setPower(0.5);
+                LEDs.setPower(0);
+                sleep(200);
+                LEDs.setPower(0.5);
+                sleep(200);
+                LEDs.setPower(0);
                 drive.followTrajectory(fondue);
                 if(distance.getDistance(DistanceUnit.INCH) < 20) {
-                    targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 9000;
+                    targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4760;
             }else {
             targetPos = 3600;
         }
@@ -262,9 +283,8 @@ public class blueBarrierCamera extends LinearOpMode {
 
 
 
-        //drive.followTrajectory(fondue);
-            //drive.turn(Math.toRadians(0));
-        drive.followTrajectory(FPark);
+
+        drive.followTrajectory(FPark); 
 
         }
 

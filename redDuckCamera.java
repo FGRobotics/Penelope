@@ -37,7 +37,7 @@ public class redDuckCamera extends LinearOpMode {
 
         Wheel = hardwareMap.get(DcMotorEx.class, "Wheel");
         LSlides = hardwareMap.get(DcMotorEx.class, "LSlides");
-        LSlides.setDirection(DcMotorSimple.Direction.REVERSE);
+        //LSlides.setDirection(DcMotorSimple.Direction.REVERSE);
         Bin = hardwareMap.get(Servo.class, "Bin");
         distance = hardwareMap.get(DistanceSensor.class, "toaster");
         distance.getDistance(DistanceUnit.INCH);
@@ -174,7 +174,7 @@ public class redDuckCamera extends LinearOpMode {
             LEDs.setPower(0);
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 22) {
-                targetPos = -300 *  (int)distance.getDistance(DistanceUnit.INCH) + 5880; //6650
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 3850; //6650
                 //targetPos = 1700;
             } else {
                 targetPos = 1700;
@@ -189,7 +189,7 @@ public class redDuckCamera extends LinearOpMode {
             LEDs.setPower(0);
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 22) {
-                targetPos = (-300 * (int) distance.getDistance(DistanceUnit.INCH) + 6295); //7700
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -4210; //7700
             } else {
                 targetPos = 2500;
             }
@@ -206,7 +206,7 @@ public class redDuckCamera extends LinearOpMode {
             LEDs.setPower(0);
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 22) {
-                targetPos = -300 * (int) distance.getDistance(DistanceUnit.INCH) + 7135;//9100
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4760;//9100
             } else {
                 targetPos = 3600;
             }
