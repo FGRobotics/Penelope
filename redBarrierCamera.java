@@ -25,7 +25,7 @@ import java.util.List;
 public class redBarrierCamera extends LinearOpMode {
     private DcMotorEx LSlides, Wheel, LEDs, Intake;
     DistanceSensor distance, BinSensor;
-    private Servo Bin, initTurret;
+    private Servo Bin;
 
     public ElapsedTime wheelRun = new ElapsedTime(0);
 
@@ -51,7 +51,7 @@ public class redBarrierCamera extends LinearOpMode {
         Bin.setPosition(0.5);
 
 
-        initTurret = hardwareMap.get(Servo.class, "susControl");
+
         //initTurret.setPosition(.8);
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
@@ -89,10 +89,13 @@ public class redBarrierCamera extends LinearOpMode {
                 .lineToSplineHeading(new Pose2d(40, -55,Math.toRadians(20)))
                 .build();
         Trajectory overBarrier = drive.trajectoryBuilder(lineBarrier.end())
-                .lineToSplineHeading(new Pose2d(-3, -55,Math.toRadians(20)))
+                .lineToSplineHeading(new Pose2d(-3, -55,Math.toRadians(20)),
+                        SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(40))
                 .build();
+
         Trajectory lineFountain = drive.trajectoryBuilder(overBarrier.end())
-                .lineToSplineHeading(new Pose2d(-6, -50,Math.toRadians(340)))
+                .lineToSplineHeading(new Pose2d(-6, -55,Math.toRadians(340)))
                 .build();
 
 
@@ -302,11 +305,11 @@ public class redBarrierCamera extends LinearOpMode {
                 idle();
             }
             LSlides.setPower(0);
-            sleep(800);
+            sleep(100);
             drive.followTrajectory(park);
 
         }
-        sleep(800);
+        sleep(100);
         drive.followTrajectory(FPark);
         drive.followTrajectory(FFPark);
         Intake.setPower(0.8);
@@ -322,13 +325,13 @@ public class redBarrierCamera extends LinearOpMode {
 
 
             //If these are true, deliver a thing
-            if(intakeSpin.seconds()<10.0 && BinSensor.getDistance(DistanceUnit.INCH) < 5.1){
+            if(intakeSpin.seconds()<5.0 && BinSensor.getDistance(DistanceUnit.INCH) < 5.1){
                 Intake.setPower(-1);
                 sleep(100);
                 Intake.setPower(0.0);
-                drive.followTrajectory(lineBarrier);
-                drive.followTrajectory(overBarrier);
-                drive.followTrajectory(lineFountain);
+                //drive.followTrajectory(lineBarrier);
+                //drive.followTrajectory(overBarrier);
+                //drive.followTrajectory(lineFountain);
                 extend.reset();
                 while(extend.time() <= 2.0 ) {
                     if(!(LSlides.getCurrentPosition() >= -1600 - 100 && LSlides.getCurrentPosition() <= -1600 + 100)) {

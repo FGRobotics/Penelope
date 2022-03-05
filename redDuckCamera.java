@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -14,8 +13,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.drive.DriveConstants;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -71,13 +68,13 @@ public class redDuckCamera extends LinearOpMode {
 
         Trajectory duck = drive.trajectoryBuilder(fondue.end())
 
-                .lineToSplineHeading(new Pose2d(-65, -57, Math.toRadians(260))) //add more tilt
+                .lineToSplineHeading(new Pose2d(-65, -59.3, Math.toRadians(260))) //add more tilt
                 //SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 //SampleMecanumDrive.getAccelerationConstraint(22)) // x was -55 : y was -50
 
                 .build();
         Trajectory park = drive.trajectoryBuilder(duck.end())
-                .lineToSplineHeading(new Pose2d(-66, -33, Math.toRadians(269)))
+                .lineToSplineHeading(new Pose2d(-66, -37, Math.toRadians(269)))
                 .build();
         /*Trajectory left = drive.trajectoryBuilder(myPose)
                 .strafeLeft(12)
@@ -189,7 +186,7 @@ public class redDuckCamera extends LinearOpMode {
             LEDs.setPower(0);
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 22) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -4210; //7700
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -4310; //7700
             } else {
                 targetPos = 2500;
             }
@@ -206,7 +203,7 @@ public class redDuckCamera extends LinearOpMode {
             LEDs.setPower(0);
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 22) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4760;//9100
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4860;//9100
             } else {
                 targetPos = 3600;
             }
