@@ -22,7 +22,7 @@ import java.util.List;
 @Autonomous (group = "Drive")
 public class redDuckCamera extends LinearOpMode {
     private DcMotorEx LSlides, Wheel, LEDs;
-    DistanceSensor distance, wheelSensor;
+    DistanceSensor distance;
     private Servo Bin;
     public ElapsedTime wheelRun = new ElapsedTime(0);
 
@@ -33,14 +33,14 @@ public class redDuckCamera extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         Wheel = hardwareMap.get(DcMotorEx.class, "Wheel");
+        Wheel.setDirection(DcMotorSimple.Direction.REVERSE);
         LSlides = hardwareMap.get(DcMotorEx.class, "LSlides");
-        //LSlides.setDirection(DcMotorSimple.Direction.REVERSE);
+        LSlides.setDirection(DcMotorSimple.Direction.REVERSE);
         Bin = hardwareMap.get(Servo.class, "Bin");
         distance = hardwareMap.get(DistanceSensor.class, "toaster");
         distance.getDistance(DistanceUnit.INCH);
         LEDs = hardwareMap.get(DcMotorEx.class, "LEDs");
-        wheelSensor = hardwareMap.get(DistanceSensor.class, "wheelSensor");
-        wheelSensor.getDistance(DistanceUnit.INCH);
+        
         //Bin start position - 0.4 is too low and cause problems coming back in, 0.5 cause issues intaking sometimes
         Bin.setPosition(0.5);
         LEDs.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -60,7 +60,7 @@ public class redDuckCamera extends LinearOpMode {
         Trajectory fondue = drive.trajectoryBuilder(myPose)
                 //.back(20)
                 //.lineTo(new Vector2d(-20,-45))
-                .lineToSplineHeading(new Pose2d(-3, -37, Math.toRadians(260))) //267
+                .lineToSplineHeading(new Pose2d(-7, -43, Math.toRadians(260))) //267
                 //SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 //SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
@@ -68,13 +68,13 @@ public class redDuckCamera extends LinearOpMode {
 
         Trajectory duck = drive.trajectoryBuilder(fondue.end())
 
-                .lineToSplineHeading(new Pose2d(-65, -59.3, Math.toRadians(260))) //add more tilt
+                .lineToSplineHeading(new Pose2d(-54, -58, Math.toRadians(260))) //add more tilt
                 //SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 //SampleMecanumDrive.getAccelerationConstraint(22)) // x was -55 : y was -50
 
                 .build();
         Trajectory park = drive.trajectoryBuilder(duck.end())
-                .lineToSplineHeading(new Pose2d(-66, -37, Math.toRadians(269)))
+                .lineToSplineHeading(new Pose2d(-55, -36, Math.toRadians(269)))
                 .build();
         /*Trajectory left = drive.trajectoryBuilder(myPose)
                 .strafeLeft(12)
@@ -90,7 +90,7 @@ public class redDuckCamera extends LinearOpMode {
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam"), cameraMonitorViewId);
         //OpenCV Pipeline
 
-        ConceptCV myPipeline = new ConceptCV();
+        contourPipeline myPipeline = new contourPipeline();
         webcam.setPipeline(myPipeline);
 
         OpenCvWebcam finalWebcam = webcam;
@@ -98,7 +98,7 @@ public class redDuckCamera extends LinearOpMode {
         finalWebcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                finalWebcam.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT);
+                finalWebcam.startStreaming(1920, 1080, OpenCvCameraRotation.UPSIDE_DOWN);
                 telemetry.addData("Initialization passed ", test);
 
                 telemetry.update();
@@ -121,9 +121,8 @@ public class redDuckCamera extends LinearOpMode {
             //red duck side 150,350,680,880,1380,1580,600,99
             // red barrier side 440, 640, 1080, 1280, 1680, 1880, 650, 950
 
-            ConceptCV.configureRects(150, 350, 680, 880, 1380, 1580, 600, 900);
-            ConceptCV.translateRects(0, 0, 0, 0);
-            location = ConceptCV.findTSE();
+
+            location = myPipeline.getLocation();
             telemetry.addLine("location: " + location);
             telemetry.update();
             //testRun++;
@@ -131,7 +130,7 @@ public class redDuckCamera extends LinearOpMode {
         }
         waitForStart();
         if (isStopRequested()) return;
-        location = ConceptCV.findTSE();
+        location = myPipeline.getLocation();
         telemetry.addLine("location: " + location);
         telemetry.update();
 
@@ -169,9 +168,10 @@ public class redDuckCamera extends LinearOpMode {
             LEDs.setPower(.5);
             sleep(200);
             LEDs.setPower(0);
-            drive.followTrajectory(fondue);
+            sleep(7000);
+
             if (distance.getDistance(DistanceUnit.INCH) < 22) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 3850; //6650
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4000; //6650
                 //targetPos = 1700;
             } else {
                 targetPos = 1700;
@@ -184,9 +184,10 @@ public class redDuckCamera extends LinearOpMode {
             LEDs.setPower(0.5);
             sleep(200);
             LEDs.setPower(0);
+
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 22) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -4310; //7700
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -4460; //7700
             } else {
                 targetPos = 2500;
             }
@@ -201,9 +202,10 @@ public class redDuckCamera extends LinearOpMode {
             LEDs.setPower(0.5);
             sleep(200);
             LEDs.setPower(0);
+
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 22) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4860;//9100
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 5000;//9100
             } else {
                 targetPos = 3600;
             }
@@ -213,6 +215,7 @@ public class redDuckCamera extends LinearOpMode {
             sleep(1000);
             Wheel.setPower(0);
         }
+
         difference = 18 - distance.getDistance(DistanceUnit.INCH);
         telemetry.addData("dISTANCE: ", distance.getDistance(DistanceUnit.INCH));
         telemetry.addData("Differnec", difference);
@@ -220,7 +223,7 @@ public class redDuckCamera extends LinearOpMode {
 
         ElapsedTime extend = new ElapsedTime();
         extend.reset();
-        while (extend.time() <= 2.0) {
+        while (extend.time() <= 3.0) {
             if (!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
                 LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 LSlides.setPower(-0.8);
@@ -287,22 +290,28 @@ public class redDuckCamera extends LinearOpMode {
             sleep(800);
             drive.followTrajectory(duck);
         }
+
+        /*
         telemetry.addData("Wheel: ", wheelSensor.getDistance(DistanceUnit.INCH));
         turn = wheelSensor.getDistance(DistanceUnit.INCH) - 4;
         telemetry.addData("Turn Value", turn);
         telemetry.update();
         sleep(2000);
         telemetry.update();
+
+
         if(turn >= 0.5){
             turn = (turn + 5)*-1;
         }else if(turn<0){
             turn = 0; //joey was here
         }
-        drive.turn(Math.toRadians(turn) - 1e-6);
+
+         */
+        //drive.turn(Math.toRadians(turn) - 1e-6);
         //sleep(400);
         extend.reset();
         while (extend.time() <= 3.00) {
-            Wheel.setPower(-0.6);
+            Wheel.setPower(-1*(extend.time()/3));
         }
         //sleep(3000);
         Wheel.setPower(0);
