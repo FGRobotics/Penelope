@@ -4,6 +4,7 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -19,11 +20,12 @@ public class contourPipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
         Mat end = input;
+
         Mat src = input;
 
 
         Scalar scalarLowerYCrCb = new Scalar(  0.0, 0.0, 0.0);
-        Scalar scalarUpperYCrCb = new Scalar(255.0, 120.0, 120.0);
+        Scalar scalarUpperYCrCb = new Scalar(255.0, 120.0, 200.0);
 
 
         //Converts space to ycrcb
@@ -34,7 +36,7 @@ public class contourPipeline extends OpenCvPipeline {
         Imgproc.morphologyEx(src, src, Imgproc.MORPH_OPEN, new Mat());
         Imgproc.morphologyEx(src, src, Imgproc.MORPH_CLOSE, new Mat());
         // GaussianBlur
-        Imgproc.GaussianBlur(src, src, new Size(5.0, 15.0), 0.00);
+        Imgproc.blur(src, src, new Size(20, 20));
 
 
 
@@ -72,13 +74,18 @@ public class contourPipeline extends OpenCvPipeline {
         midpoint = (rect.x + (rect.x + rect.width)) /2;
 
 
+        int middleBound = 600;
+
+        int rightBound = 1300;
 
 
 
 
 
 
+        Imgproc.line(end, new Point(middleBound,1920), new Point(middleBound,0), new Scalar(255,0,0));
 
+        Imgproc.line(end, new Point(rightBound,1920), new Point(rightBound,0), new Scalar(255,0,0));
 
         return end;
 
@@ -92,9 +99,9 @@ public class contourPipeline extends OpenCvPipeline {
 
     public int getLocation(){
         //change these values when needed
-        if(midpoint>1600){
+        if(midpoint>1300){
             return 2;
-        }else if(midpoint>1100){
+        }else if(midpoint>600){
             return 1;
         }else{
             return 0;
