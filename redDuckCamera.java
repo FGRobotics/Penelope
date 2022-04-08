@@ -168,7 +168,8 @@ public class redDuckCamera extends LinearOpMode {
             LEDs.setPower(.5);
             sleep(200);
             LEDs.setPower(0);
-            sleep(7000);
+            sleep(100);
+            drive.followTrajectory(fondue);
 
             if (distance.getDistance(DistanceUnit.INCH) < 22) {
                 targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4000; //6650
