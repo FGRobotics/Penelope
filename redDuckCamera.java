@@ -173,7 +173,7 @@ public class redDuckCamera extends LinearOpMode {
 
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 30) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 5500; //6650
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4000; //6650
                 //targetPos = 1700;
             } else {
                 targetPos = 1700;
@@ -189,7 +189,7 @@ public class redDuckCamera extends LinearOpMode {
 
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 30) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -5900; //7700
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -4460; //7700
             } else {
                 targetPos = 2500;
             }
@@ -207,7 +207,7 @@ public class redDuckCamera extends LinearOpMode {
 
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 30) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 6800;//9100
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 5000;//9100
             } else {
                 targetPos = 3600;
             }
