@@ -1,22 +1,62 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
+import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
+import com.acmerobotics.roadrunner.drive.DriveSignal;
+import com.acmerobotics.roadrunner.drive.MecanumDrive;
+import com.acmerobotics.roadrunner.followers.HolonomicPIDVAFollower;
+import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
+import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.LED;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceRunner;
+import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ACCEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_ACCEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_VEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_VEL;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MOTOR_VELO_PID;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.RUN_USING_ENCODER;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.encoderTicksToInches;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kA;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kStatic;
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
 @TeleOp(name="FrenzyTelev1")
 public class freightFrenzyTeleOpv1 extends LinearOpMode {
     private DcMotorEx leftFront, leftRear, rightRear, rightFront, LSlides, Wheel, Intake, LEDs;
-    private Servo Bin, UpTurret;
+    private Servo Bin, initTurret, UpTurret;
     private CRServo extendTurret, HorizontallyTurret;
 
 
@@ -39,17 +79,18 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
         LSlides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         UpTurret = hardwareMap.get(Servo.class, "tilt");
         HorizontallyTurret = hardwareMap.get(CRServo.class, "pan");
-
+        initTurret = hardwareMap.get(Servo.class, "susControl");
         extendTurret = hardwareMap.get(CRServo.class, "extend");
 
 
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront, LSlides, Wheel, Intake, LEDs);
-        //LSlides.setDirection(DcMotorSimple.Direction.REVERSE);
+
         LEDs.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        //leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        LSlides.setDirection(DcMotorSimple.Direction.REVERSE);
         //LSlides.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //LSlides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -65,10 +106,10 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
 
         waitForStart();
         //moves turret up
-
+        initTurret.setPosition(.8);
         while (opModeIsActive()) {
             // Variable setup
-            double fortuneIII;
+
             double leftPower;
             double rightPower;
             //double slidesAngPower;
@@ -100,7 +141,7 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
 
             //Linear slides encoder tracker
             //if (LSlidesRotation < 5040){
-          LSlidesPower = gamepad2.left_stick_y;
+            LSlidesPower = gamepad2.left_stick_y;
             //}else{
             //LSlides.setPower(-0.1);
             //}
@@ -109,57 +150,30 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
             //Wheel motion at different speeds
             while(gamepad1.left_trigger > 0.0) {
                 Wheel.setPower(-0.8);
+                turret();
                 //LEDs.setPower(Math.abs(Wheel.getPower()));
-                HorizontallyTurret.setPower(gamepad2.right_stick_x * -0.5);
-
-                extendTurret.setPower(gamepad2.left_stick_x);
-
-                if(gamepad2.cross) {
-                    UpTurret.setPosition(UpTurret.getPosition() - 0.005);
-                }else if(gamepad2.triangle){
-                    UpTurret.setPosition(UpTurret.getPosition() + 0.005);
-                }
             }
             while(gamepad1.right_trigger > 0.0) {
-                Wheel.setPower(gamepad1.right_trigger * -1);
+                Wheel.setPower(0.8);
+
                 //LEDs.setPower(Math.abs(Wheel.getPower()));
-                HorizontallyTurret.setPower(gamepad2.right_stick_x * -0.5);
-
-                extendTurret.setPower(gamepad2.left_stick_x);
-
-                if(gamepad2.cross) {
-                    UpTurret.setPosition(UpTurret.getPosition() - 0.005);
-                }else if(gamepad2.triangle){
-                    UpTurret.setPosition(UpTurret.getPosition() + 0.005);
-                }
             }
             Wheel.setPower(0);
 
+
+
+
             while (gamepad1.dpad_left) {
                 Wheel.setPower(0.8);
+                turret();
                 LEDs.setPower(Math.abs(Wheel.getPower()));
-                HorizontallyTurret.setPower(gamepad2.right_stick_x * -0.5);
 
-                extendTurret.setPower(gamepad2.left_stick_x);
-
-                if(gamepad2.cross) {
-                    UpTurret.setPosition(UpTurret.getPosition() - 0.005);
-                }else if(gamepad2.triangle){
-                    UpTurret.setPosition(UpTurret.getPosition() + 0.005);
-                }
             }
             while (gamepad1.dpad_right) {
                 Wheel.setPower(0.8);
+                turret();
                 LEDs.setPower(Math.abs(Wheel.getPower()));
-                HorizontallyTurret.setPower(gamepad2.right_stick_x * -0.5);
 
-                extendTurret.setPower(gamepad2.left_stick_x);
-
-                if(gamepad2.cross) {
-                    UpTurret.setPosition(UpTurret.getPosition() - 0.005);
-                }else if(gamepad2.triangle){
-                    UpTurret.setPosition(UpTurret.getPosition() + 0.005);
-                }
             }
             Wheel.setPower(0);
 
@@ -229,64 +243,14 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
             //Wheel.setPower(wheelPower);
 
             //Turret
-
-            while(gamepad2.right_stick_y > 0.5) {
-                UpTurret.setPosition(UpTurret.getPosition() + -0.1*0.005);
-            }
-            while(gamepad2.right_stick_y < -0.5){
-                UpTurret.setPosition(UpTurret.getPosition() + 0.1*0.005);
-            }
-
-
-
-            //turret
-
-            HorizontallyTurret.setPower(gamepad2.right_stick_x * -0.18);
-
-
-
-            extendTurret.setPower(gamepad2.left_stick_x);
-
-            if(gamepad2.cross) {
-                UpTurret.setPosition(UpTurret.getPosition() - 0.0005);
-            }else if(gamepad2.triangle){
-                UpTurret.setPosition(UpTurret.getPosition() + 0.0005);
-            }
-
+            turret();
+            //
 
 
             //Wheel exponential
 
 
-            if (gamepad1.square || gamepad1.circle) {
-                ElapsedTime wheelRun = new ElapsedTime(0);
-                wheelRun.reset();
-                while (wheelRun.time() < 2.25) {
-                    fortuneIII = wheelRun.time() / 6;
 
-                    fortuneIII *= -1;
-                    Wheel.setPower(fortuneIII);
-                }
-
-
-            } else {
-                Wheel.setPower(0);
-            }
-
-            if (gamepad1.cross) {
-                ElapsedTime wheelRun = new ElapsedTime(0);
-                wheelRun.reset();
-                while (wheelRun.time() < 3) {
-                    fortuneIII = wheelRun.time() / 6;
-
-
-                    Wheel.setPower(fortuneIII);
-                }
-
-
-            } else {
-                Wheel.setPower(0);
-            }
 
             //Strafe while loop
             while (gamepad1.left_bumper) {
@@ -353,6 +317,7 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
 
 
 
+
     public void cStrafe(double p){
         if(p > 0){
             rightRear.setPower(p-p*0.8);
@@ -369,6 +334,153 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
             LEDs.setPower(1);
         }
 
+
+    }
+
+    public void newTurret(){
+        UpTurret.setPosition(UpTurret.getPosition() + buttonMap(gamepad2.right_stick_y>0.5) * -0.05);
+        UpTurret.setPosition(UpTurret.getPosition() + buttonMap(gamepad2.right_stick_y>0.5) * -0.05);
+
+        HorizontallyTurret.setPower(gamepad2.right_stick_x*0.1);
+
+        extendTurret.setPower(buttonMap(gamepad2.dpad_up));
+        extendTurret.setPower(buttonMap(gamepad2.dpad_down) * -1);
+
+        if(gamepad2.cross){
+            initTurret.setPosition(initTurret.getPosition() - 0.1*0.005);
+        }
+        if(gamepad2.square){
+            initTurret.setPosition(initTurret.getPosition() + 0.1*0.005);
+        }
+
+
+    }
+    public double buttonMap(Boolean button){
+        while(button){
+            return 1;
+        }
+            return 0;
+
+
+    }
+
+    public void turret(){
+        wheelLinear();
+        while(gamepad2.right_stick_y > 0.5) {
+            UpTurret.setPosition(UpTurret.getPosition() + -0.1*0.005);
+            wheelLinear();
+            while(gamepad1.left_trigger > 0.0) {
+                Wheel.setPower(-0.8);
+                turret();
+                wheelLinear();
+                //LEDs.setPower(Math.abs(Wheel.getPower()));
+            }
+            while(gamepad1.right_trigger > 0.0) {
+                Wheel.setPower(0.8);
+                turret();
+                wheelLinear();
+                //LEDs.setPower(Math.abs(Wheel.getPower()));
+            }
+        }
+        while(gamepad2.right_stick_y < -0.5){
+            UpTurret.setPosition(UpTurret.getPosition() + 0.1*0.005);
+            wheelLinear();
+            while(gamepad1.left_trigger > 0.0) {
+                Wheel.setPower(-0.8);
+                turret();
+                wheelLinear();
+                //LEDs.setPower(Math.abs(Wheel.getPower()));
+            }
+            while(gamepad1.right_trigger > 0.0) {
+                Wheel.setPower(0.8);
+                turret();
+                wheelLinear();
+                //LEDs.setPower(Math.abs(Wheel.getPower()));
+            }
+        }
+        HorizontallyTurret.setPower(gamepad2.right_stick_x*0.1);
+        int extendPos = 0;
+        if (gamepad2.dpad_up){
+            wheelLinear();
+            extendTurret.setPower(1);
+            extendPos += 1;
+
+            while(gamepad1.left_trigger > 0.0) {
+                Wheel.setPower(-0.8);
+                turret();
+                wheelLinear();
+                //LEDs.setPower(Math.abs(Wheel.getPower()));
+            }
+            while(gamepad1.right_trigger > 0.0) {
+                Wheel.setPower(0.8);
+                turret();
+                wheelLinear();
+                //LEDs.setPower(Math.abs(Wheel.getPower()));
+            }
+
+        }else if(gamepad2.dpad_down){
+            wheelLinear();
+            extendTurret.setPower(-1);
+            extendPos -= 1;
+
+
+
+            while(gamepad1.left_trigger > 0.0) {
+                Wheel.setPower(-0.8);
+                turret();
+                wheelLinear();
+                //LEDs.setPower(Math.abs(Wheel.getPower()));
+            }
+            while(gamepad1.right_trigger > 0.0) {
+                Wheel.setPower(0.8);
+                turret();
+                wheelLinear();
+                //LEDs.setPower(Math.abs(Wheel.getPower()));
+            }
+        }else {
+            extendTurret.setPower(0);
+        }
+
+        if(gamepad2.cross){
+            initTurret.setPosition(initTurret.getPosition() - 0.1*0.005);
+        }
+        if(gamepad2.square){
+            initTurret.setPosition(initTurret.getPosition() + 0.1*0.005);
+        }
+    }
+    public void wheelLinear(){
+
+        double fortuneIII;
+
+        if (gamepad1.square || gamepad1.circle) {
+            ElapsedTime wheelRun = new ElapsedTime(0);
+            wheelRun.reset();
+            while (wheelRun.time() < 3) {
+                fortuneIII = wheelRun.time() / 2;
+
+                fortuneIII *= -1;
+                Wheel.setPower(fortuneIII);
+            }
+
+
+        } else {
+            Wheel.setPower(0);
+        }
+
+        if (gamepad1.cross) {
+            ElapsedTime wheelRun = new ElapsedTime(0);
+            wheelRun.reset();
+            while (wheelRun.time() < 3) {
+                fortuneIII = wheelRun.time() / 2;
+
+
+                Wheel.setPower(fortuneIII);
+            }
+
+
+        } else {
+            Wheel.setPower(0);
+        }
 
     }
 
