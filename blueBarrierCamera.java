@@ -14,7 +14,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -37,6 +36,7 @@ public class blueBarrierCamera extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         LSlides = hardwareMap.get(DcMotorEx.class, "LSlides");
+        LSlides.setDirection(DcMotorSimple.Direction.REVERSE);
         Bin = hardwareMap.get(Servo.class, "Bin");
         Wheel = hardwareMap.get(DcMotorEx.class, "Wheel");
         distance = hardwareMap.get(DistanceSensor.class, "toaster");
@@ -49,26 +49,26 @@ public class blueBarrierCamera extends LinearOpMode {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Pose2d myPose = new Pose2d(10, 62, Math.toRadians(90));
         drive.setPoseEstimate(myPose);
-        Pose2d parkT = new Pose2d(10, 48, Math.toRadians(0));
+
+
         double difference = 0;
+
 
 
         Trajectory fondue = drive.trajectoryBuilder(myPose)
                 //.back(20)
-                .lineToSplineHeading(new Pose2d(-18, 37, Math.toRadians(80)))
+                .lineToSplineHeading(new Pose2d(-16, 37, Math.toRadians(80)))
                 .build();
         Trajectory park = drive.trajectoryBuilder(fondue.end())
                 //.back(20)
-                .lineToSplineHeading(new Pose2d(10, 48, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(7, 66, Math.toRadians(-10)))
                 .build();
-        Trajectory FPark = drive.trajectoryBuilder(parkT)
-                .lineTo(new Vector2d(60, 48))
+        Trajectory FPark = drive.trajectoryBuilder(park.end())
+                .lineTo(new Vector2d(40, 66))
                 .build();
 
-        waitForStart();
-        Wheel.setPower(0.5);
-        sleep(800);
-        Wheel.setPower(0);
+
+
 
         OpenCvWebcam webcam;
         int test = 1;
@@ -76,14 +76,15 @@ public class blueBarrierCamera extends LinearOpMode {
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam"), cameraMonitorViewId);
         //OpenCV Pipeline
 
-        ConceptCV myPipeline = new ConceptCV();
+        contourPipeline myPipeline = new contourPipeline();
         webcam.setPipeline(myPipeline);
 
         OpenCvWebcam finalWebcam = webcam;
+
         finalWebcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                finalWebcam.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT);
+                finalWebcam.startStreaming(1920, 1080, OpenCvCameraRotation.UPSIDE_DOWN);
                 telemetry.addData("Initialization passed ", test);
                 telemetry.update();
             }
@@ -96,42 +97,29 @@ public class blueBarrierCamera extends LinearOpMode {
             }
         });
 
-        sleep(4000);
 
-        int location = 0;
+        int location = 2;
         int targetPos = 0;
+        while (!opModeIsActive()) {
+            //int testRun = 1;
+            //int finalTestRun = testRun;
+            //telemetry.addData("Pass number ", finalTestRun);
+            telemetry.update();
+
+            //red duck side 150,350,680,880,1380,1580,600,99
+            // red barrier side 440, 640, 1080, 1280, 1680, 1880, 650, 950
 
 
-        //red duck side 150,350,680,880,1380,1580,600,90 0
-        // red barrier side 440, 640, 1080, 1280, 1680, 1880, 650, 950
-        // blue barrier side 180, 380, 780, 980, 1430, 1630, 650, 950
-        //blue duck side 430, 630, 1080, 1280, 1630, 1830, 600, 900
 
-        ConceptCV.configureRects(180, 380, 780, 980, 1430, 1630, 650, 950);
-
-        location = ConceptCV.findTSE();
-        sleep(2000);
-        location = ConceptCV.findTSE();
+            location = myPipeline.getLocation();
+            telemetry.addData("location: ", location);
+            telemetry.update();
+            //testRun++;
+        }
+        waitForStart();
+        location = myPipeline.getLocation();
         telemetry.addLine("location: " + location);
         telemetry.update();
-
-
-        sleep(2000);
-
-
-        if (isStopRequested()) return;
-        LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            finalWebcam.closeCameraDeviceAsync(new OpenCvCamera.AsyncCameraCloseListener() {
-
-
-                @Override
-                public void onClose() {
-                    //finalWebcam.stopStreaming();
-                    telemetry.addLine("Closed");
-                    telemetry.update();
-                }
-            });
 
             // Variable setup
             int cPos = LSlides.getCurrentPosition();
@@ -152,11 +140,11 @@ public class blueBarrierCamera extends LinearOpMode {
                 sleep(200);
                 LEDs.setPower(0);
                 drive.followTrajectory(fondue);
-                if(distance.getDistance(DistanceUnit.INCH) < 20) {
-                    targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 3750;
+                if(distance.getDistance(DistanceUnit.INCH) < 30) {
+                    targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4400;
                     //targetPos = 1700;
                 }else{
-                    targetPos = 1700;
+                    targetPos = -1700;
                 }
             } else if (location == 1) {
                 LEDs.setPower(.5);
@@ -166,10 +154,10 @@ public class blueBarrierCamera extends LinearOpMode {
                 sleep(200);
                 LEDs.setPower(0);
                 drive.followTrajectory(fondue);
-                if(distance.getDistance(DistanceUnit.INCH) < 20) {
-                    targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -4210;
+                if(distance.getDistance(DistanceUnit.INCH) < 30) {
+                    targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -4800;
                 }else{
-                    targetPos = 2500;
+                    targetPos = -2500;
                 }
                 //targetPos = 2500;
 
@@ -184,10 +172,10 @@ public class blueBarrierCamera extends LinearOpMode {
                 sleep(200);
                 LEDs.setPower(0);
                 drive.followTrajectory(fondue);
-                if(distance.getDistance(DistanceUnit.INCH) < 20) {
-                    targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4760;
+                if(distance.getDistance(DistanceUnit.INCH) < 30) {
+                    targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 6000;
             }else {
-            targetPos = 3600;
+            targetPos = -3600;
         }
     } else {
         Wheel.setPower(0.5);
@@ -220,11 +208,11 @@ public class blueBarrierCamera extends LinearOpMode {
              }
 
             if(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100){
-                 sleep(1000);
+                 sleep(200);
                  Bin.setPosition(1.0);
-                 sleep(1000);
+                 sleep(2000);
                  Bin.setPosition(0.5);
-                 sleep(1000);
+                 sleep(200);
             }else{
                 if(!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
                     LSlides.setPower(-0.8);
@@ -240,16 +228,16 @@ public class blueBarrierCamera extends LinearOpMode {
                     }
                 }
                 if(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100){
-                    sleep(1000);
+                    sleep(200);
                     Bin.setPosition(1.0);
-                    sleep(1000);
+                    sleep(2000);
                     Bin.setPosition(0.5);
-                    sleep(1000);
+                    sleep(200);
                 }
             }
 
             LSlides.setTargetPosition(0);
-            LSlides.setPower(-0.8);
+            LSlides.setPower(-0.4);
             while(LSlides.isBusy()){
                 idle();
             }
@@ -258,7 +246,7 @@ public class blueBarrierCamera extends LinearOpMode {
                 drive.followTrajectory(park);
             }else{
                 LSlides.setTargetPosition(0);
-                LSlides.setPower(-0.8);
+                LSlides.setPower(-0.4);
                 while(LSlides.isBusy()){
                     idle();
                 }
@@ -284,7 +272,7 @@ public class blueBarrierCamera extends LinearOpMode {
 
 
 
-        drive.followTrajectory(FPark); 
+        drive.followTrajectory(FPark);
 
         }
 

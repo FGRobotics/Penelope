@@ -40,7 +40,7 @@ public class redDuckCamera extends LinearOpMode {
         distance = hardwareMap.get(DistanceSensor.class, "toaster");
         distance.getDistance(DistanceUnit.INCH);
         LEDs = hardwareMap.get(DcMotorEx.class, "LEDs");
-        
+
         //Bin start position - 0.4 is too low and cause problems coming back in, 0.5 cause issues intaking sometimes
         Bin.setPosition(0.5);
         LEDs.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -48,9 +48,10 @@ public class redDuckCamera extends LinearOpMode {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Pose2d myPose = new Pose2d(-30, -62, Math.toRadians(270));//intake facing back wall
         drive.setPoseEstimate(myPose);
+
         double difference = 0;
         double turn = 0;
-        int location = 0;
+        int location = 2;
 
 
 
@@ -74,7 +75,7 @@ public class redDuckCamera extends LinearOpMode {
 
                 .build();
         Trajectory park = drive.trajectoryBuilder(duck.end())
-                .lineToSplineHeading(new Pose2d(-55, -36, Math.toRadians(269)))
+                .lineToSplineHeading(new Pose2d(-55, -31, Math.toRadians(269)))
                 .build();
         /*Trajectory left = drive.trajectoryBuilder(myPose)
                 .strafeLeft(12)
@@ -168,11 +169,11 @@ public class redDuckCamera extends LinearOpMode {
             LEDs.setPower(.5);
             sleep(200);
             LEDs.setPower(0);
-            sleep(100);
-            drive.followTrajectory(fondue);
 
-            if (distance.getDistance(DistanceUnit.INCH) < 22) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4000; //6650
+
+            drive.followTrajectory(fondue);
+            if (distance.getDistance(DistanceUnit.INCH) < 30) {
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 5500; //6650
                 //targetPos = 1700;
             } else {
                 targetPos = 1700;
@@ -187,8 +188,8 @@ public class redDuckCamera extends LinearOpMode {
             LEDs.setPower(0);
 
             drive.followTrajectory(fondue);
-            if (distance.getDistance(DistanceUnit.INCH) < 22) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -4460; //7700
+            if (distance.getDistance(DistanceUnit.INCH) < 30) {
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -5900; //7700
             } else {
                 targetPos = 2500;
             }
@@ -205,8 +206,8 @@ public class redDuckCamera extends LinearOpMode {
             LEDs.setPower(0);
 
             drive.followTrajectory(fondue);
-            if (distance.getDistance(DistanceUnit.INCH) < 22) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 5000;//9100
+            if (distance.getDistance(DistanceUnit.INCH) < 30) {
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 6800;//9100
             } else {
                 targetPos = 3600;
             }
@@ -243,11 +244,11 @@ public class redDuckCamera extends LinearOpMode {
         sleep(150);
 
         if (LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100) {
-            sleep(1000);
+            sleep(100);
             Bin.setPosition(1.0);
-            sleep(1000);
+            sleep(2000);
             Bin.setPosition(0.5);
-            sleep(1000);
+            sleep(100);
         } else {
             if (!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
                 LSlides.setPower(-0.8);
@@ -265,9 +266,9 @@ public class redDuckCamera extends LinearOpMode {
             if (LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100) {
                 sleep(100);
                 Bin.setPosition(1.0);
-                sleep(1000);
+                sleep(2000);
                 Bin.setPosition(0.5);
-                sleep(1000);
+                sleep(100);
             }
         }
 
