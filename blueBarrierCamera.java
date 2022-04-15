@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -27,13 +28,16 @@ public class blueBarrierCamera extends LinearOpMode {
     private DcMotorEx LSlides, Wheel, LEDs;
     DistanceSensor distance;
     private Servo Bin;
+    private DistanceSensor binSensor;
     public ElapsedTime wheelRun = new ElapsedTime(0);
 
 
     private List<DcMotorEx> motors;
+    private DcMotorEx Intake;
 
     @Override
     public void runOpMode() throws InterruptedException {
+        Intake = hardwareMap.get(DcMotorEx.class, "Intake");
 
         LSlides = hardwareMap.get(DcMotorEx.class, "LSlides");
         LSlides.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -42,6 +46,8 @@ public class blueBarrierCamera extends LinearOpMode {
         distance = hardwareMap.get(DistanceSensor.class, "toaster");
         distance.getDistance(DistanceUnit.INCH);
         LEDs = hardwareMap.get(DcMotorEx.class, "LEDs");
+        binSensor = hardwareMap.get(DistanceSensor.class, "BinSensor");
+
 //Bin start position - 0.4 is too low and cause problems coming back in, 0.5 cause issues intaking sometimes
         Bin.setPosition(0.5);
         LEDs.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -57,15 +63,37 @@ public class blueBarrierCamera extends LinearOpMode {
 
         Trajectory fondue = drive.trajectoryBuilder(myPose)
                 //.back(20)
-                .lineToSplineHeading(new Pose2d(-16, 37, Math.toRadians(80)))
+                .lineToSplineHeading(new Pose2d(-16, 39, Math.toRadians(80)))
                 .build();
         Trajectory park = drive.trajectoryBuilder(fondue.end())
                 //.back(20)
-                .lineToSplineHeading(new Pose2d(7, 66, Math.toRadians(-10)))
+                .lineToSplineHeading(new Pose2d(7, 66, Math.toRadians(-8)))
                 .build();
-        Trajectory FPark = drive.trajectoryBuilder(park.end())
-                .lineTo(new Vector2d(40, 66))
+        Trajectory sstrafeRight = drive.trajectoryBuilder(park.end())
+                .strafeLeft(2)
                 .build();
+
+
+        Trajectory barrierS = drive.trajectoryBuilder(sstrafeRight.end())
+                .lineTo(new Vector2d(40,72),
+                        SampleMecanumDrive.getVelocityConstraint(25,DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(20))
+                .build();
+
+        Trajectory FPark = drive.trajectoryBuilder(barrierS.end())
+                .lineTo(new Vector2d(60,72))
+                .build();
+
+        Trajectory grab = drive.trajectoryBuilder(FPark.end())
+                //.back(20)
+                .lineToSplineHeading(new Pose2d(70, 68, Math.toRadians(-10)))
+                .build();
+        Trajectory release  = drive.trajectoryBuilder(grab.end())
+                //.back(20)
+                .lineToSplineHeading(new Pose2d(63, 68, Math.toRadians(-10)))
+                .build();
+
+
 
 
 
@@ -141,7 +169,7 @@ public class blueBarrierCamera extends LinearOpMode {
                 LEDs.setPower(0);
                 drive.followTrajectory(fondue);
                 if(distance.getDistance(DistanceUnit.INCH) < 30) {
-                    targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4400;
+                    targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4100;
                     //targetPos = 1700;
                 }else{
                     targetPos = -1700;
@@ -179,7 +207,7 @@ public class blueBarrierCamera extends LinearOpMode {
         }
     } else {
         Wheel.setPower(0.5);
-        sleep(1000);
+        sleep(100);
                 Wheel.setPower(0);
             }
 
@@ -272,8 +300,57 @@ public class blueBarrierCamera extends LinearOpMode {
 
 
 
+        drive.followTrajectory(barrierS);
+
+        sleep(100);
+
         drive.followTrajectory(FPark);
+        ElapsedTime endTimer = new ElapsedTime();
+        endTimer.reset();
+        sleep(100);
+
+        Intake.setPower(0.8);
+
+
+        drive.followTrajectory(grab);
+
+        sleep(400);
+
+        Intake.setPower(0.2);
+
+        drive.followTrajectory(release);
+
+
+
+
+        while(endTimer.time() < 9){
+            while(binSensor.getDistance(DistanceUnit.INCH ) > 2.5 ){
+
+                Intake.setPower(0.8);
+
+
+
+
+            }
+
+            doubleBlock();
+
+        }
+
+
+
+
+
+
+        }
+
+        public void doubleBlock(){
+            Intake.setPower(-1);
+            sleep(1000);
+            Intake.setPower(0);
+
 
         }
 
     }
+
