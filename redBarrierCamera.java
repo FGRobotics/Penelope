@@ -22,7 +22,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.List;
-@Autonomous(group = "Drive")
+@Autonomous(group = "Drive", name = "redWarehouseMulti")
 public class redBarrierCamera extends LinearOpMode {
     private DcMotorEx LSlides, Wheel, LEDs, Intake;
     DistanceSensor distance, BinSensor;
@@ -65,15 +65,25 @@ public class redBarrierCamera extends LinearOpMode {
 
         Trajectory fondue = drive.trajectoryBuilder(myPose)
 
-                .lineToSplineHeading(new Pose2d(-13, -54, Math.toRadians(270))) //-51
+                .lineToConstantHeading(new Vector2d(-12, -51)) //-51
                 .build();
 
         Trajectory park = drive.trajectoryBuilder(fondue.end())
-                .lineToSplineHeading(new Pose2d(8, -68, Math.toRadians(0)))
+                .lineToSplineHeading(new Pose2d(8, -69, Math.toRadians(10)))
+
+                .build();
+        Trajectory apark = drive.trajectoryBuilder(fondue.end())
+                .lineToSplineHeading(new Pose2d(8, -70, Math.toRadians(10)))
+
                 .build();
 
-        Trajectory FPark = drive.trajectoryBuilder(park.end())
-                .lineTo(new Vector2d(40, -70),
+
+
+
+
+
+        Trajectory FPark = drive.trajectoryBuilder(apark.end())
+                .lineTo(new Vector2d(40, -71),
                         SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(20))
                 .build();
@@ -83,9 +93,9 @@ public class redBarrierCamera extends LinearOpMode {
 
 
         Trajectory FFPark = drive.trajectoryBuilder(FPark.end())
-                .lineToSplineHeading(new Pose2d(53, -70, Math.toRadians(0)),
+                .lineToSplineHeading(new Pose2d(55, -70, Math.toRadians(0)),
                         SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(20))
+                        SampleMecanumDrive.getAccelerationConstraint(24))
 
                 .build();
 
@@ -95,15 +105,26 @@ public class redBarrierCamera extends LinearOpMode {
 
 
         Trajectory leave = drive.trajectoryBuilder(release.end())
-                .lineTo(new Vector2d(30,-60))
+                .lineTo(new Vector2d(30,-50))
                 .build();
 
         Trajectory fontwo = drive.trajectoryBuilder(leave.end())
-                .lineTo(new Vector2d(-10,-60))
+                .lineTo(new Vector2d(-10,-50))
                 .build();
         Trajectory fontthree = drive.trajectoryBuilder(fontwo.end())
-                .lineToSplineHeading(new Pose2d(-5,-58,Math.toRadians(50)))
+                .lineToSplineHeading(new Pose2d(-11,-32,Math.toRadians(-52)))
                 .build();
+
+
+        Trajectory reverse = drive.trajectoryBuilder(fontthree.end())
+                .lineToSplineHeading(new Pose2d(20,-40,Math.toRadians(-200)))
+                .build();
+
+        Trajectory over = drive.trajectoryBuilder(reverse.end())
+                .lineTo(new Vector2d(72,-40))
+                .build();
+
+
 
 
 
@@ -148,8 +169,9 @@ public class redBarrierCamera extends LinearOpMode {
         finalWebcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                finalWebcam.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT);
+                finalWebcam.startStreaming(1920, 1080, OpenCvCameraRotation.UPSIDE_DOWN);
                 telemetry.addData("Initialization passed ", test);
+                telemetry.addData("BinSensor: ", BinSensor.getDistance(DistanceUnit.INCH));
                 telemetry.update();
             }
 
@@ -215,46 +237,33 @@ public class redBarrierCamera extends LinearOpMode {
         telemetry.update();
 
 
+
+
+
         if (location == 0) {
-            LEDs.setPower(.5);
-            sleep(200);
-            LEDs.setPower(0);
+
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 24) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4250;
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -4100;
                 //targetPos = 1700;
             } else {
                 targetPos = 1700;
             }
         } else if (location == 1) {
-            LEDs.setPower(.5);
-            LEDs.setPower(0);
-            sleep(200);
-            LEDs.setPower(0.5);
-            sleep(200);
-            LEDs.setPower(0);
+
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 24) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4410;
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4530;
             } else {
                 targetPos = 2500;
             }
             //targetPos = 2500;
 
         } else if (location == 2) {
-            LEDs.setPower(.5);
-            LEDs.setPower(0);
-            sleep(200);
-            LEDs.setPower(0.5);
-            LEDs.setPower(0);
-            sleep(200);
-            LEDs.setPower(0.5);
-            sleep(200);
-            LEDs.setPower(0);
-            //sleep(7000);
+
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 24) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 5460;
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 5400;
             } else {
                 targetPos = 3600;
             }
@@ -265,8 +274,8 @@ public class redBarrierCamera extends LinearOpMode {
         }
 
         difference = 18 - distance.getDistance(DistanceUnit.INCH);
-        telemetry.addData("dISTANCE: ", distance.getDistance(DistanceUnit.INCH));
-        telemetry.addData("Differnec", difference);
+        telemetry.addData("DISTANCE: ", distance.getDistance(DistanceUnit.INCH));
+        telemetry.addData("Difference", difference);
         telemetry.update();
 
         ElapsedTime extend = new ElapsedTime();
@@ -274,7 +283,7 @@ public class redBarrierCamera extends LinearOpMode {
         while (extend.time() <= 2.0) {
             if (!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
                 LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                LSlides.setPower(-0.8);
+                LSlides.setPower(-1);
                 LSlides.setTargetPosition(targetPos); //last number was 1600
 
                 LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -290,14 +299,14 @@ public class redBarrierCamera extends LinearOpMode {
 
 
         if (LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100) {
-            sleep(100);
+            //sleep(100);
             Bin.setPosition(1.0);
             sleep(2000);
             Bin.setPosition(0.5);
             sleep(100);
         } else {
             if (!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
-                LSlides.setPower(-0.8);
+                LSlides.setPower(-1);
                 LSlides.setTargetPosition(targetPos); //last number was 1600
 
                 LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -311,7 +320,7 @@ public class redBarrierCamera extends LinearOpMode {
                 }
             }
             if (LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100) {
-                sleep(100);
+                //sleep(100);
                 Bin.setPosition(1.0);
                 sleep(2000);
                 Bin.setPosition(0.5);
@@ -320,8 +329,9 @@ public class redBarrierCamera extends LinearOpMode {
         }
 
         LSlides.setTargetPosition(0);
-        LSlides.setPower(-0.4);
+        LSlides.setPower(-1);
         while (LSlides.isBusy()) {
+
             idle();
         }
         LSlides.setPower(0);
@@ -329,24 +339,26 @@ public class redBarrierCamera extends LinearOpMode {
             drive.followTrajectory(park);
         } else {
             LSlides.setTargetPosition(0);
-            LSlides.setPower(-0.4);
+            LSlides.setPower(-1);
             while (LSlides.isBusy()) {
                 idle();
             }
             LSlides.setPower(0);
-            sleep(100);
+
             drive.followTrajectory(park);
 
+            drive.followTrajectory(apark);
+
         }
-        sleep(100);
+
         drive.followTrajectory(FPark);
-        sleep(100);
-        Intake.setPower(0.8);
+
+        Intake.setPower(1);
         drive.followTrajectory(FFPark);
 
         sleep(400);
 
-        Intake.setPower(0.3);
+        Intake.setPower(0.14);
 
         drive.followTrajectory(release);
 
@@ -356,35 +368,43 @@ public class redBarrierCamera extends LinearOpMode {
 
 
 
-            while(BinSensor.getDistance(DistanceUnit.INCH ) > 2.5 ){
+            while(BinSensor.getDistance(DistanceUnit.INCH ) > 3 ){
 
-                Intake.setPower(0.8);
+                Intake.setPower(1);
 
 
 
 
             }
-        if(endTimer.time()<3.0) {
-            doubleBlock();
+
+
+
+        if(endTimer.time() < 2.0) {
+            Intake.setPower(-1);
+
+
 
             drive.followTrajectory(leave);
 
-            sleep(100);
 
             drive.followTrajectory(fontwo);
 
-            sleep(100);
+            Intake.setPower(0);
+
+
 
             drive.followTrajectory(fontthree);
 
 
             extend.reset();
 
+            targetPos = - 2000;
 
-            while (extend.time() <= 2.0) {
-                if (!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
+
+
+                while (!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
                     LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    LSlides.setPower(-0.8);
+                    LSlides.setPower(-1);
                     LSlides.setTargetPosition(targetPos); //last number was 1600
 
                     LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -396,7 +416,54 @@ public class redBarrierCamera extends LinearOpMode {
 
                     }
                 }
-            }
+
+
+
+            sleep(100);
+            Bin.setPosition(1.0);
+            sleep(2000);
+            Bin.setPosition(0.5);
+            sleep(100);
+
+            targetPos = 0;
+
+            /*
+                while (!(LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100)) {
+                    LSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    LSlides.setPower(-1);
+                    LSlides.setTargetPosition(targetPos); //last number was 1600
+
+                    LSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    while (LSlides.isBusy()) {
+                        //telemetry.addData("Curent pos: ", LSlides.getCurrentPosition());
+                        //telemetry.update();
+
+                        idle();
+
+                    }
+                }
+*/
+
+                drive.followTrajectory(reverse);
+                sleep(100);
+                drive.followTrajectory(over);
+
+
+
+
+
+
+
+
+
+
+
+
+        }else if(endTimer.time() > 2){
+            Intake.setPower(-1);
+            sleep(1000);
+            Intake.setPower(0);
+
         }
 
 
@@ -423,7 +490,7 @@ public class redBarrierCamera extends LinearOpMode {
 
     public void doubleBlock(){
         Intake.setPower(-1);
-        sleep(1000);
+        sleep(2500);
         Intake.setPower(0);
 
 

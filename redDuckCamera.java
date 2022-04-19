@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -19,7 +20,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.List;
-@Autonomous (group = "Drive")
+@Autonomous (group = "Drive", name = "RedDuckTapeSquare")
 public class redDuckCamera extends LinearOpMode {
     private DcMotorEx LSlides, Wheel, LEDs;
     DistanceSensor distance;
@@ -61,7 +62,7 @@ public class redDuckCamera extends LinearOpMode {
         Trajectory fondue = drive.trajectoryBuilder(myPose)
                 //.back(20)
                 //.lineTo(new Vector2d(-20,-45))
-                .lineToSplineHeading(new Pose2d(-7, -43, Math.toRadians(260))) //267
+                .lineToSplineHeading(new Pose2d(-7, -41, Math.toRadians(260))) //267
                 //SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 //SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
@@ -69,7 +70,7 @@ public class redDuckCamera extends LinearOpMode {
 
         Trajectory duck = drive.trajectoryBuilder(fondue.end())
 
-                .lineToSplineHeading(new Pose2d(-54, -58, Math.toRadians(260))) //add more tilt
+                .lineToSplineHeading(new Pose2d(-54, -59.5, Math.toRadians(260))) //add more tilt
                 //SampleMecanumDrive.getVelocityConstraint(20, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                 //SampleMecanumDrive.getAccelerationConstraint(22)) // x was -55 : y was -50
 
@@ -77,6 +78,28 @@ public class redDuckCamera extends LinearOpMode {
         Trajectory park = drive.trajectoryBuilder(duck.end())
                 .lineToSplineHeading(new Pose2d(-55, -31, Math.toRadians(269)))
                 .build();
+
+
+        Trajectory spark = drive.trajectoryBuilder(duck.end())
+                .lineToSplineHeading(new Pose2d(8, -60, Math.toRadians(10)))
+
+                .build();
+        Trajectory apark = drive.trajectoryBuilder(fondue.end())
+                .lineToSplineHeading(new Pose2d(8, -58, Math.toRadians(10)))
+
+                .build();
+
+
+
+
+
+
+        Trajectory FPark = drive.trajectoryBuilder(apark.end())
+                .lineTo(new Vector2d(60, -58),
+                        SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(40))
+                .build();
+
         /*Trajectory left = drive.trajectoryBuilder(myPose)
                 .strafeLeft(12)
                 .build();
@@ -189,7 +212,7 @@ public class redDuckCamera extends LinearOpMode {
 
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 30) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -4460; //7700
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) -4760; //7700
             } else {
                 targetPos = 2500;
             }
@@ -207,7 +230,7 @@ public class redDuckCamera extends LinearOpMode {
 
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 30) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 5000;//9100
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 5200;//9100
             } else {
                 targetPos = 3600;
             }
@@ -312,13 +335,19 @@ public class redDuckCamera extends LinearOpMode {
         //drive.turn(Math.toRadians(turn) - 1e-6);
         //sleep(400);
         extend.reset();
-        while (extend.time() <= 3.00) {
+        while (extend.time() <= 3.50) {
             Wheel.setPower(-1*(extend.time()/3));
         }
         //sleep(3000);
         Wheel.setPower(0);
         sleep(800);
+
         drive.followTrajectory(park);
+        // warehouse park
+        //drive.followTrajectory(spark);
+        //drive.followTrajectory(apark);
+        //drive.followTrajectory(FPark);
+
 
 
 

@@ -22,7 +22,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.List;
 
-@Autonomous(group = "Drive")
+@Autonomous(group = "Drive", name = "blueWarehouse")
 
 public class blueBarrierCamera extends LinearOpMode {
     private DcMotorEx LSlides, Wheel, LEDs;
@@ -169,7 +169,7 @@ public class blueBarrierCamera extends LinearOpMode {
                 LEDs.setPower(0);
                 drive.followTrajectory(fondue);
                 if(distance.getDistance(DistanceUnit.INCH) < 30) {
-                    targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4100;
+                    targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 3900;
                     //targetPos = 1700;
                 }else{
                     targetPos = -1700;

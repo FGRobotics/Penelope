@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -21,9 +22,9 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 
 import java.util.List;
-@Autonomous(group = "Drive", name = "blueDuckTapeSquare")
+@Autonomous(group = "Drive", name = "blueDuckWarehouse")
 
-public class blueDuckCamera extends LinearOpMode {
+public class blueDuckWarehouse extends LinearOpMode {
     private DcMotorEx LSlides, Wheel, LEDs;
     DistanceSensor distance;
     private Servo Bin;
@@ -63,8 +64,36 @@ public class blueDuckCamera extends LinearOpMode {
                 .lineToSplineHeading(new Pose2d(-52,59, Math.toRadians(160)))
                 .build();
         Trajectory lineUp = drive.trajectoryBuilder(duck.end())
-                .lineToSplineHeading(new Pose2d(-56,34.5, Math.toRadians(80)))
+                .lineToSplineHeading(new Pose2d(-56,36, Math.toRadians(90)))
                 .build();
+
+
+        Trajectory park = drive.trajectoryBuilder(duck.end())
+                //.back(20)
+                .lineToSplineHeading(new Pose2d(7, 38, Math.toRadians(180)))//(-8) - 1e-6)
+                .build();
+
+
+
+
+        Trajectory barrierS = drive.trajectoryBuilder(park.end())
+                .lineToSplineHeading(new Pose2d(10,49, Math.toRadians(-8) + 1e-6),
+                        SampleMecanumDrive.getVelocityConstraint(50,DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(40))//60, 66
+                .build();
+
+        Trajectory FPark = drive.trajectoryBuilder(barrierS.end())
+                .lineTo(new Vector2d(70,36),
+                        SampleMecanumDrive.getVelocityConstraint(50,DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(40))
+                .build();
+
+        Trajectory Corner = drive.trajectoryBuilder(FPark.end())
+                .lineTo(new Vector2d(62,28),
+                        SampleMecanumDrive.getVelocityConstraint(30,DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(30))
+                .build();
+
 
 
 
@@ -156,7 +185,7 @@ public class blueDuckCamera extends LinearOpMode {
             LEDs.setPower(0);
             drive.followTrajectory(fondue);
             if (distance.getDistance(DistanceUnit.INCH) < 30) {
-                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4000; //6650
+                targetPos = 190 * (int) distance.getDistance(DistanceUnit.INCH) - 4050; //6650
                 //targetPos = 1700;
             } else {
                 targetPos = -1700;
@@ -224,9 +253,9 @@ public class blueDuckCamera extends LinearOpMode {
         }
 
         if (LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100) {
-            //sleep(100);
+            sleep(100);
             Bin.setPosition(1.0);
-            sleep(2500);
+            sleep(2000);
             Bin.setPosition(0.5);
             sleep(100);
         } else {
@@ -244,16 +273,16 @@ public class blueDuckCamera extends LinearOpMode {
                 }
             }
             if (LSlides.getCurrentPosition() >= targetPos - 100 && LSlides.getCurrentPosition() <= targetPos + 100) {
-                //sleep(100);
+                sleep(100);
                 Bin.setPosition(1.0);
-                sleep(2500);
+                sleep(2000);
                 Bin.setPosition(0.5);
                 sleep(100);
             }
         }
 
         LSlides.setTargetPosition(0);
-        LSlides.setPower(-0.4);
+        LSlides.setPower(-0.8);
         while (LSlides.isBusy()) {
             idle();
         }
@@ -281,7 +310,13 @@ public class blueDuckCamera extends LinearOpMode {
 
 
             sleep(100);
-            drive.followTrajectory(lineUp);
+            drive.followTrajectory(park);
+
+            drive.followTrajectory(barrierS);
+            drive.followTrajectory(FPark);
+            sleep(200);
+            drive.followTrajectory(Corner);
+
 
         }
 

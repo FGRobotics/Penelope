@@ -42,17 +42,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ACCEL;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_ACCEL;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_ANG_VEL;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MAX_VEL;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MOTOR_VELO_PID;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.RUN_USING_ENCODER;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.TRACK_WIDTH;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.encoderTicksToInches;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kA;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kStatic;
-import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
+import static org.firstinspires.ftc.teamcode.drive.opmode.DriveConstants.MAX_ACCEL;
+import static org.firstinspires.ftc.teamcode.drive.opmode.DriveConstants.MAX_ANG_ACCEL;
+import static org.firstinspires.ftc.teamcode.drive.opmode.DriveConstants.MAX_ANG_VEL;
+import static org.firstinspires.ftc.teamcode.drive.opmode.DriveConstants.MAX_VEL;
+import static org.firstinspires.ftc.teamcode.drive.opmode.DriveConstants.MOTOR_VELO_PID;
+import static org.firstinspires.ftc.teamcode.drive.opmode.DriveConstants.RUN_USING_ENCODER;
+import static org.firstinspires.ftc.teamcode.drive.opmode.DriveConstants.TRACK_WIDTH;
+import static org.firstinspires.ftc.teamcode.drive.opmode.DriveConstants.encoderTicksToInches;
+import static org.firstinspires.ftc.teamcode.drive.opmode.DriveConstants.kA;
+import static org.firstinspires.ftc.teamcode.drive.opmode.DriveConstants.kStatic;
+import static org.firstinspires.ftc.teamcode.drive.opmode.DriveConstants.kV;
+
+
 @TeleOp(name="FrenzyTelev1")
 public class freightFrenzyTeleOpv1 extends LinearOpMode {
     private DcMotorEx leftFront, leftRear, rightRear, rightFront, LSlides, Wheel, Intake, LEDs;
@@ -124,8 +126,8 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
             //Telemetry
             LSlidesRotation = LSlides.getCurrentPosition();
 
-            telemetry.addData("Slides Position: ", LSlidesRotation);
-            telemetry.update();
+            //telemetry.addData("Slides Position: ", LSlidesRotation);
+            //'telemetry.update();
 
             //Foundation motion
             leftPower = gamepad1.left_stick_y * -1;
@@ -148,17 +150,32 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
 
             //wheelPower = gamepad1.right_trigger * -1;
             //Wheel motion at different speeds
+
+
+            Wheel.setPower((gamepad1.triangle) ? gamepad1.left_trigger  * 0.65 : gamepad1.right_trigger * -0.65);
+
+            telemetry.addData("touchpad 1:" , gamepad2.touchpad_finger_1);
+            telemetry.update();
+
+
+
+
+            /*
             while(gamepad1.left_trigger > 0.0) {
-                Wheel.setPower(-0.8);
-                turret();
+                Wheel.setPower(-0.65);
+                //turret();
                 //LEDs.setPower(Math.abs(Wheel.getPower()));
             }
             while(gamepad1.right_trigger > 0.0) {
-                Wheel.setPower(0.8);
+                Wheel.setPower(0.65);
+                //turret();
 
                 //LEDs.setPower(Math.abs(Wheel.getPower()));
             }
+
             Wheel.setPower(0);
+
+             */
 
 
 
@@ -175,7 +192,7 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
                 LEDs.setPower(Math.abs(Wheel.getPower()));
 
             }
-            Wheel.setPower(0);
+            //Wheel.setPower(0);
 
             //Bin up and down
             if (gamepad2.right_bumper) {
@@ -309,7 +326,7 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
         leftRear.setPower(0);
         rightFront.setPower(0);
         rightRear.setPower(0);
-        Wheel.setPower(0);
+        //Wheel.setPower(0);
         LSlides.setPower(0);
         Intake.setPower(0);
         LEDs.setPower(0);
@@ -359,16 +376,21 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
         while(button){
             return 1;
         }
-            return 0;
+        return 0;
 
 
     }
 
     public void turret(){
-        wheelLinear();
+
+
+
         while(gamepad2.right_stick_y > 0.5) {
-            UpTurret.setPosition(UpTurret.getPosition() + -0.1*0.005);
-            wheelLinear();
+            UpTurret.setPosition(UpTurret.getPosition() - 0.01);
+            //wheelLinear();
+
+            Wheel.setPower((gamepad1.triangle) ? gamepad1.left_trigger  * 0.65 : gamepad1.right_trigger * -0.65);
+            /*
             while(gamepad1.left_trigger > 0.0) {
                 Wheel.setPower(-0.8);
                 turret();
@@ -381,10 +403,15 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
                 wheelLinear();
                 //LEDs.setPower(Math.abs(Wheel.getPower()));
             }
+
+             */
         }
         while(gamepad2.right_stick_y < -0.5){
-            UpTurret.setPosition(UpTurret.getPosition() + 0.1*0.005);
-            wheelLinear();
+            UpTurret.setPosition(UpTurret.getPosition() + 0.01);
+            //wheelLinear();
+
+            Wheel.setPower((gamepad1.triangle) ? gamepad1.left_trigger  * 0.65 : gamepad1.right_trigger * -0.65);
+            /*
             while(gamepad1.left_trigger > 0.0) {
                 Wheel.setPower(-0.8);
                 turret();
@@ -397,14 +424,20 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
                 wheelLinear();
                 //LEDs.setPower(Math.abs(Wheel.getPower()));
             }
+
+             */
         }
         HorizontallyTurret.setPower(gamepad2.right_stick_x*0.1);
         int extendPos = 0;
         if (gamepad2.dpad_up){
-            wheelLinear();
+            //wheelLinear();
             extendTurret.setPower(1);
             extendPos += 1;
 
+            Wheel.setPower((gamepad1.triangle) ? gamepad1.left_trigger  * 0.65 : gamepad1.right_trigger * -0.65);
+
+            /*
+
             while(gamepad1.left_trigger > 0.0) {
                 Wheel.setPower(-0.8);
                 turret();
@@ -418,11 +451,18 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
                 //LEDs.setPower(Math.abs(Wheel.getPower()));
             }
 
+             */
+
         }else if(gamepad2.dpad_down){
-            wheelLinear();
+            //wheelLinear();
             extendTurret.setPower(-1);
             extendPos -= 1;
 
+            Wheel.setPower((gamepad1.triangle) ? gamepad1.left_trigger  * 0.65 : gamepad1.right_trigger * -0.65);
+
+
+            /*
+
 
 
             while(gamepad1.left_trigger > 0.0) {
@@ -437,6 +477,8 @@ public class freightFrenzyTeleOpv1 extends LinearOpMode {
                 wheelLinear();
                 //LEDs.setPower(Math.abs(Wheel.getPower()));
             }
+
+             */
         }else {
             extendTurret.setPower(0);
         }
